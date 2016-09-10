@@ -207,7 +207,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		4 + MULTIJOY_COUNT
   #define NUM_USB_BUFFERS	30
-  #define NUM_INTERFACE		5
+  #define NUM_INTERFACE		2 + MULTIJOY_COUNT
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial

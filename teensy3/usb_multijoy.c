@@ -37,7 +37,7 @@
 #ifdef MULTIJOY_INTERFACE // defined by usb_dev.h -> usb_desc.h
 
 
-uint32_t usb_multijoy_data[3];
+uint32_t usb_multijoy_data[MULTIJOY_COUNT][3];
 
 
 // Maximum number of transmit packets to queue so we don't starve other endpoints for memory
@@ -69,6 +69,9 @@ int usb_multijoy_send(uint8_t joynum)
         while (1) {
                 if (!usb_configuration) {
 			//serial_print("error1\n");
+                        return -1;
+                }
+                if (joynum >= MULTIJOY_COUNT) {
                         return -1;
                 }
                 if (usb_tx_packet_count(MULTIJOY_ENDPOINT + joynum) < TX_PACKET_LIMIT) {

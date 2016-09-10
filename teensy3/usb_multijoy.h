@@ -39,7 +39,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-int usb_multijoy_send(void);
+int usb_multijoy_send(uint8_t joynum);
 extern uint32_t usb_multijoy_data[MULTIJOY_COUNT][3];
 #ifdef __cplusplus
 }

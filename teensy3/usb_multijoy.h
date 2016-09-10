@@ -31,7 +31,7 @@
 #ifndef USBmultijoy_h_
 #define USBmultijoy_h_
 
-#ifdef USB_SERIAL_HID_JOY
+#ifdef MULTIJOY_INTERFACE
 
 #include <inttypes.h>
 
@@ -179,6 +179,7 @@ extern usb_multijoy_class MultiJoystick;
 
 #endif // __cplusplus
 
-#endif // USB_HID || USB_SERIAL_HID || USB_SERIAL_HID_JOY
+#endif // MULTIJOY_INTERFACE
+
 #endif // USBmultijoy_h_
 

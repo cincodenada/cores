@@ -336,7 +336,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
-#elif defined(USB_SERIAL_HID_JOY)
+#elif defined(USB_SERIAL_MULTIJOY)
   #define MULTIJOY_COUNT	4
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0487

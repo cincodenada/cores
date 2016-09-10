@@ -53,10 +53,8 @@ uint8_t usb_joystick_class::manual_mode = 0;
 #ifdef USB_SERIAL_HID_JOY
 usb_serial_class Serial;
 usb_keyboard_class Keyboard;
-usb_joystick2_class Joystick2;
-uint8_t usb_joystick2_class::manual_mode = 0;
-usb_joystick_class Joystick;
-uint8_t usb_joystick_class::manual_mode = 0;
+usb_multi_joystick_class MultiJoystick;
+uint8_t usb_multi_joystick_class::manual_mode = 0;
 #endif
 
 #ifdef USB_MIDI

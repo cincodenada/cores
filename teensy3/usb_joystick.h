@@ -31,7 +31,7 @@
 #ifndef USBjoystick_h_
 #define USBjoystick_h_
 
-#if defined(USB_HID) || defined(USB_SERIAL_HID) || defined(USB_SERIAL_HID_JOY)
+#if defined(USB_HID) || defined(USB_SERIAL_HID)
 
 #include <inttypes.h>
 

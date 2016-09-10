@@ -194,6 +194,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
 #elif defined(USB_SERIAL_HID_JOY)
+  #define MULTIJOY_COUNT	4
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x0487
   #define DEVICE_CLASS		0xEF
@@ -204,7 +205,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','2','x','J','o','y','s','t','i','c','k'}
   #define PRODUCT_NAME_LEN	26
   #define EP0_SIZE		64
-  #define NUM_ENDPOINTS		6
+  #define NUM_ENDPOINTS		4 + MULTIJOY_COUNT
   #define NUM_USB_BUFFERS	30
   #define NUM_INTERFACE		5
   #define CDC_IAD_DESCRIPTOR	1
@@ -220,24 +221,33 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define KEYBOARD_ENDPOINT     1
   #define KEYBOARD_SIZE         8
   #define KEYBOARD_INTERVAL     1
-  #define JOYSTICK2_INTERFACE   3	// Second Joystick
-  #define JOYSTICK2_ENDPOINT    5
-  #define JOYSTICK2_SIZE        16
-  #define JOYSTICK2_INTERVAL    1
-  #define JOYSTICK_INTERFACE    4	// Joystick
-  #define JOYSTICK_ENDPOINT     6
-  #define JOYSTICK_SIZE         16
-  #define JOYSTICK_INTERVAL     1
+  #define MULTIJOY_INTERFACE    3
+  #define MULTIJOY_ENDPOINT     5
+  #define MULTIJOY_SIZE         16
+  #define MULTIJOY_INTERVAL     1
   #define KEYBOARD_DESC_OFFSET	(9+8 + 9+5+5+4+5+7+9+7+7 + 9)
-  #define JOYSTICK2_DESC_OFFSET	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9+9+7 + 9)
-  #define JOYSTICK_DESC_OFFSET	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9+9+7 + 9)
-  #define CONFIG_DESC_SIZE	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9+9+7 + 9+9+7)
+  #define MULTIJOY_DESC_OFFSET	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9)
+  #define MULTIJOY_DESC_SIZE	(9+9+7)
+  #define CONFIG_DESC_SIZE	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + MULTIJOY_HID_DESC_SIZE * MULTIJOY_COUNT)
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
   #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT8_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  // In case we eventually want more than 4
+  // The eventual include of these checks against NUM_ENDPOINTS
+  // So this should be perfectly safe
+  #define ENDPOINT9_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT10_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT11_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT12_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT13_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT14_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT15_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT16_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
 #elif defined(USB_MIDI)
   #define VENDOR_ID		0x16C0

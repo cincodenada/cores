@@ -234,6 +234,55 @@ static uint8_t joystick_report_desc[] = {
 };
 #endif
 
+// This is identical to JOYSTICK_INTERFACE (besides the variable name)
+// but I'd like to keep the MultiJoy code as separate as possible for now
+#ifdef MULTIJOY_INTERFACE
+static uint8_t multijoy_report_desc[] = {
+        0x05, 0x01,                     // Usage Page (Generic Desktop)
+        0x09, 0x04,                     // Usage (Joystick)
+        0xA1, 0x01,                     // Collection (Application)
+        0x15, 0x00,                     // Logical Minimum (0)
+        0x25, 0x01,                     // Logical Maximum (1)
+        0x75, 0x01,                     // Report Size (1)
+        0x95, 0x20,                     // Report Count (32)
+        0x05, 0x09,                     // Usage Page (Button)
+        0x19, 0x01,                     // Usage Minimum (Button #1)
+        0x29, 0x20,                     // Usage Maximum (Button #32)
+        0x81, 0x02,                     // Input (variable,absolute)
+        0x15, 0x00,                     // Logical Minimum (0)
+        0x25, 0x07,                     // Logical Maximum (7)
+        0x35, 0x00,                     // Physical Minimum (0)
+        0x46, 0x3B, 0x01,               // Physical Maximum (315)
+        0x75, 0x04,                     // Report Size (4)
+        0x95, 0x01,                     // Report Count (1)
+        0x65, 0x14,                     // Unit (20)
+        0x05, 0x01,                     // Usage Page (Generic Desktop)
+        0x09, 0x39,                     // Usage (Hat switch)
+        0x81, 0x42,                     // Input (variable,absolute,null_state)
+        0x05, 0x01,                     // Usage Page (Generic Desktop)
+        0x09, 0x01,                     // Usage (Pointer)
+        0xA1, 0x00,                     // Collection ()
+        0x15, 0x00,                     //   Logical Minimum (0)
+        0x26, 0xFF, 0x03,               //   Logical Maximum (1023)
+        0x75, 0x0A,                     //   Report Size (10)
+        0x95, 0x04,                     //   Report Count (4)
+        0x09, 0x30,                     //   Usage (X)
+        0x09, 0x31,                     //   Usage (Y)
+        0x09, 0x32,                     //   Usage (Z)
+        0x09, 0x35,                     //   Usage (Rz)
+        0x81, 0x02,                     //   Input (variable,absolute)
+        0xC0,                           // End Collection
+        0x15, 0x00,                     // Logical Minimum (0)
+        0x26, 0xFF, 0x03,               // Logical Maximum (1023)
+        0x75, 0x0A,                     // Report Size (10)
+        0x95, 0x02,                     // Report Count (2)
+        0x09, 0x36,                     // Usage (Slider)
+        0x09, 0x36,                     // Usage (Slider)
+        0x81, 0x02,                     // Input (variable,absolute)
+        0xC0                            // End Collection
+};
+#endif
+
 #ifdef SEREMU_INTERFACE
 static uint8_t seremu_report_desc[] = {
         0x06, 0xC9, 0xFF,                       // Usage Page 0xFFC9 (vendor defined)
@@ -667,6 +716,124 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         JOYSTICK_INTERVAL,                      // bInterval
 #endif // JOYSTICK_INTERFACE
 
+#ifdef MULTIJOY_INTERFACE
+        #if MULTIJOY_COUNT > 0
+                // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+                9,                                      // bLength
+                4,                                      // bDescriptorType
+                (MULTIJOY_INTERFACE + 0)                // bInterfaceNumber
+                0,                                      // bAlternateSetting
+                1,                                      // bNumEndpoints
+                0x03,                                   // bInterfaceClass (0x03 = HID)
+                0x00,                                   // bInterfaceSubClass
+                0x00,                                   // bInterfaceProtocol
+                0,                                      // iInterface
+                // HID interface descriptor, HID 1.11 spec, section 6.2.1
+                9,                                      // bLength
+                0x21,                                   // bDescriptorType
+                0x11, 0x01,                             // bcdHID
+                0,                                      // bCountryCode
+                1,                                      // bNumDescriptors
+                0x22,                                   // bDescriptorType
+                LSB(sizeof(multijoy_report_desc)),      // wDescriptorLength
+                MSB(sizeof(multijoy_report_desc)),
+                // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+                7,                                      // bLength
+                5,                                      // bDescriptorType
+                (MULTIJOY_ENDPOINT + 0) | 0x80,         // bEndpointAddress
+                0x03,                                   // bmAttributes (0x03=intr)
+                MULTIJOY_SIZE, 0,                       // wMaxPacketSize
+                MULTIJOY_INTERVAL,                      // bInterval
+        #endif
+        #if MULTIJOY_COUNT > 1
+                // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+                9,                                      // bLength
+                4,                                      // bDescriptorType
+                (MULTIJOY_INTERFACE + 1)                // bInterfaceNumber
+                0,                                      // bAlternateSetting
+                1,                                      // bNumEndpoints
+                0x03,                                   // bInterfaceClass (0x03 = HID)
+                0x00,                                   // bInterfaceSubClass
+                0x00,                                   // bInterfaceProtocol
+                0,                                      // iInterface
+                // HID interface descriptor, HID 1.11 spec, section 6.2.1
+                9,                                      // bLength
+                0x21,                                   // bDescriptorType
+                0x11, 0x01,                             // bcdHID
+                0,                                      // bCountryCode
+                1,                                      // bNumDescriptors
+                0x22,                                   // bDescriptorType
+                LSB(sizeof(multijoy_report_desc)),      // wDescriptorLength
+                MSB(sizeof(multijoy_report_desc)),
+                // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+                7,                                      // bLength
+                5,                                      // bDescriptorType
+                (MULTIJOY_ENDPOINT + 1) | 0x80,         // bEndpointAddress
+                0x03,                                   // bmAttributes (0x03=intr)
+                MULTIJOY_SIZE, 0,                       // wMaxPacketSize
+                MULTIJOY_INTERVAL,                      // bInterval
+        #endif
+        #if MULTIJOY_COUNT > 2
+                // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+                9,                                      // bLength
+                4,                                      // bDescriptorType
+                (MULTIJOY_INTERFACE + 2)                // bInterfaceNumber
+                0,                                      // bAlternateSetting
+                1,                                      // bNumEndpoints
+                0x03,                                   // bInterfaceClass (0x03 = HID)
+                0x00,                                   // bInterfaceSubClass
+                0x00,                                   // bInterfaceProtocol
+                0,                                      // iInterface
+                // HID interface descriptor, HID 1.11 spec, section 6.2.1
+                9,                                      // bLength
+                0x21,                                   // bDescriptorType
+                0x11, 0x01,                             // bcdHID
+                0,                                      // bCountryCode
+                1,                                      // bNumDescriptors
+                0x22,                                   // bDescriptorType
+                LSB(sizeof(multijoy_report_desc)),      // wDescriptorLength
+                MSB(sizeof(multijoy_report_desc)),
+                // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+                7,                                      // bLength
+                5,                                      // bDescriptorType
+                (MULTIJOY_ENDPOINT + 2) | 0x80,         // bEndpointAddress
+                0x03,                                   // bmAttributes (0x03=intr)
+                MULTIJOY_SIZE, 0,                       // wMaxPacketSize
+                MULTIJOY_INTERVAL,                      // bInterval
+        #endif
+        #if MULTIJOY_COUNT > 3
+                // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+                9,                                      // bLength
+                4,                                      // bDescriptorType
+                (MULTIJOY_INTERFACE + 3)                // bInterfaceNumber
+                0,                                      // bAlternateSetting
+                1,                                      // bNumEndpoints
+                0x03,                                   // bInterfaceClass (0x03 = HID)
+                0x00,                                   // bInterfaceSubClass
+                0x00,                                   // bInterfaceProtocol
+                0,                                      // iInterface
+                // HID interface descriptor, HID 1.11 spec, section 6.2.1
+                9,                                      // bLength
+                0x21,                                   // bDescriptorType
+                0x11, 0x01,                             // bcdHID
+                0,                                      // bCountryCode
+                1,                                      // bNumDescriptors
+                0x22,                                   // bDescriptorType
+                LSB(sizeof(multijoy_report_desc)),      // wDescriptorLength
+                MSB(sizeof(multijoy_report_desc)),
+                // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+                7,                                      // bLength
+                5,                                      // bDescriptorType
+                (MULTIJOY_ENDPOINT + 3) | 0x80,         // bEndpointAddress
+                0x03,                                   // bmAttributes (0x03=intr)
+                MULTIJOY_SIZE, 0,                       // wMaxPacketSize
+                MULTIJOY_INTERVAL,                      // bInterval
+        #endif
+        // Just support up to 4 for now, but theoretically
+        // this could be expanded up to 12 joysticks
+        // changes here also need to be mirrored up in usb_descriptor_list
+#endif // MULTIJOY_INTERFACE
+
 };
 
 
@@ -763,6 +930,24 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 #ifdef JOYSTICK_INTERFACE
         {0x2200, JOYSTICK_INTERFACE, joystick_report_desc, sizeof(joystick_report_desc)},
         {0x2100, JOYSTICK_INTERFACE, config_descriptor+JOYSTICK_DESC_OFFSET, 9},
+#endif
+#ifdef MULTIJOY_INTERFACE
+        #if MULTIJOY_COUNT > 0
+                {0x2200, (MULTIJOY_INTERFACE + 0), multijoy_report_desc, sizeof(multijoy_report_desc)},
+                {0x2100, (MULTIJOY_INTERFACE + 0), config_descriptor+MULTIJOY_DESC_OFFSET, 9},
+        #endif
+        #if MULTIJOY_COUNT > 1
+                {0x2200, (MULTIJOY_INTERFACE + 1), multijoy_report_desc, sizeof(multijoy_report_desc)},
+                {0x2100, (MULTIJOY_INTERFACE + 1), config_descriptor+MULTIJOY_DESC_OFFSET, 9},
+        #endif
+        #if MULTIJOY_COUNT > 2
+                {0x2200, (MULTIJOY_INTERFACE + 2), multijoy_report_desc, sizeof(multijoy_report_desc)},
+                {0x2100, (MULTIJOY_INTERFACE + 2), config_descriptor+MULTIJOY_DESC_OFFSET, 9},
+        #endif
+        #if MULTIJOY_COUNT > 3
+                {0x2200, (MULTIJOY_INTERFACE + 3), multijoy_report_desc, sizeof(multijoy_report_desc)},
+                {0x2100, (MULTIJOY_INTERFACE + 3), config_descriptor+MULTIJOY_DESC_OFFSET, 9},
+        #endif
 #endif
 #ifdef RAWHID_INTERFACE
 	{0x2200, RAWHID_INTERFACE, rawhid_report_desc, sizeof(rawhid_report_desc)},

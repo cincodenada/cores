@@ -29,12 +29,12 @@
  */
 
 
+#include <string.h> // for memcpy
 #include "AudioStream.h"
 
 
 audio_block_t * AudioStream::memory_pool;
-uint8_t AudioStream::memory_pool_size = 0;
-uint32_t AudioStream::memory_pool_available_mask;
+uint32_t AudioStream::memory_pool_available_mask[6];
 
 uint16_t AudioStream::cpu_cycles_total = 0;
 uint16_t AudioStream::cpu_cycles_total_max = 0;
@@ -47,38 +47,59 @@ uint8_t AudioStream::memory_used_max = 0;
 // placing them all onto the free list
 void AudioStream::initialize_memory(audio_block_t *data, unsigned int num)
 {
+	unsigned int i;
+
 	//Serial.println("AudioStream initialize_memory");
+	//delay(10);
+	if (num > 192) num = 192;
+	__disable_irq();
 	memory_pool = data;
-	if (num > 31) num = 31;
-	memory_pool_size = num;
-	memory_pool_available_mask = 0xFFFFFFFF;
-	for (unsigned int i=0; i < num; i++) {
+	for (i=0; i < 6; i++) {
+		memory_pool_available_mask[i] = 0;
+	}
+	for (i=0; i < num; i++) {
+		memory_pool_available_mask[i >> 5] |= (1 << (i & 0x1F));
+	}
+	for (i=0; i < num; i++) {
 		data[i].memory_pool_index = i;
 	}
+	__enable_irq();
+
 }
 
 // Allocate 1 audio data block.  If successful
 // the caller is the only owner of this new block
 audio_block_t * AudioStream::allocate(void)
 {
-	uint32_t n, avail;
+	uint32_t n, index, avail;
+	uint32_t *p;
 	audio_block_t *block;
 	uint8_t used;
 
+	p = memory_pool_available_mask;
 	__disable_irq();
-	avail = memory_pool_available_mask;
-	n = __builtin_clz(avail);
-	if (n >= memory_pool_size) {
+	do {
+		avail = *p; if (avail) break;
+		p++; avail = *p; if (avail) break;
+		p++; avail = *p; if (avail) break;
+		p++; avail = *p; if (avail) break;
+		p++; avail = *p; if (avail) break;
+		p++; avail = *p; if (avail) break;
 		__enable_irq();
+		//Serial.println("alloc:null");
 		return NULL;
-	}
-	memory_pool_available_mask = avail & ~(0x80000000 >> n);
+	} while (0);
+	n = __builtin_clz(avail);
+	*p = avail & ~(0x80000000 >> n);
 	used = memory_used + 1;
 	memory_used = used;
 	__enable_irq();
-	block = memory_pool + n;
+	index = p - memory_pool_available_mask;
+	block = memory_pool + ((index << 5) + (31 - n));
 	block->ref_count = 1;
 	if (used > memory_used_max) memory_used_max = used;
+	//Serial.print("alloc:");
+	//Serial.println((uint32_t)block, HEX);
 	return block;
 }
 
@@ -87,12 +108,17 @@ audio_block_t * AudioStream::allocate(void)
 // returned to the free pool
 void AudioStream::release(audio_block_t *block)
 {
-	uint32_t mask = (0x80000000 >> block->memory_pool_index);
+	uint32_t mask = (0x80000000 >> (31 - (block->memory_pool_index & 0x1F)));
+	uint32_t index = block->memory_pool_index >> 5;
+
+
 	__disable_irq();
 	if (block->ref_count > 1) {
 		block->ref_count--;
 	} else {
-		memory_pool_available_mask |= mask;
+		//Serial.print("reles:");
+		//Serial.println((uint32_t)block, HEX);
+		memory_pool_available_mask[index] |= mask;
 		memory_used--;
 	}
 	__enable_irq();
@@ -101,8 +127,10 @@ void AudioStream::release(audio_block_t *block)
 // Transmit an audio data block
 // to all streams that connect to an output.  The block
 // becomes owned by all the recepients, but also is still
-// owned by this object.  Normally, a block is released
-// after it's transmitted.
+// owned by this object.  Normally, a block must be released
+// by the caller after it's transmitted.  This allows the
+// caller to transmit to same block to more than 1 output,
+// and then release it once after all transmit calls.
 void AudioStream::transmit(audio_block_t *block, unsigned char index)
 {
 	for (AudioConnection *c = destination_list; c != NULL; c = c->next_dest) {
@@ -177,10 +205,16 @@ bool AudioStream::update_scheduled = false;
 bool AudioStream::update_setup(void)
 {
 	if (update_scheduled) return false;
-	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 0xFF); // 0xFF = lowest priority
+	NVIC_SET_PRIORITY(IRQ_SOFTWARE, 208); // 255 = lowest priority
 	NVIC_ENABLE_IRQ(IRQ_SOFTWARE);
 	update_scheduled = true;
 	return true;
+}
+
+void AudioStream::update_stop(void)
+{
+	NVIC_DISABLE_IRQ(IRQ_SOFTWARE);
+	update_scheduled = false;
 }
 
 AudioStream * AudioStream::first_update = NULL;

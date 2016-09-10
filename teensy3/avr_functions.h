@@ -10,10 +10,10 @@
  * permit persons to whom the Software is furnished to do so, subject to
  * the following conditions:
  *
- * 1. The above copyright notice and this permission notice shall be 
+ * 1. The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
  *
- * 2. If the Software is incorporated into a build system that allows 
+ * 2. If the Software is incorporated into a build system that allows
  * selection among a list of target devices, then similar target
  * devices manufactured by PJRC.COM must be included in the list of
  * target devices and selectable in the same manner.
@@ -46,6 +46,8 @@ void eeprom_write_byte(uint8_t *addr, uint8_t value);
 void eeprom_write_word(uint16_t *addr, uint16_t value);
 void eeprom_write_dword(uint32_t *addr, uint32_t value);
 void eeprom_write_block(const void *buf, void *addr, uint32_t len);
+int eeprom_is_ready(void);
+#define eeprom_busy_wait() do {} while (!eeprom_is_ready())
 
 static inline float eeprom_read_float(const float *addr) __attribute__((pure, always_inline, unused));
 static inline float eeprom_read_float(const float *addr)
@@ -92,10 +94,14 @@ static inline void eeprom_update_block(const void *buf, void *addr, uint32_t len
 
 char * ultoa(unsigned long val, char *buf, int radix);
 char * ltoa(long val, char *buf, int radix);
+
+#if defined(_NEWLIB_VERSION) && (__NEWLIB__ < 2 || __NEWLIB__ == 2 && __NEWLIB_MINOR__ < 2)
 static inline char * utoa(unsigned int val, char *buf, int radix) __attribute__((always_inline, unused));
 static inline char * utoa(unsigned int val, char *buf, int radix) { return ultoa(val, buf, radix); }
 static inline char * itoa(int val, char *buf, int radix) __attribute__((always_inline, unused));
 static inline char * itoa(int val, char *buf, int radix) { return ltoa(val, buf, radix); }
+#endif
+
 char * dtostrf(float val, int width, unsigned int precision, char *buf);
 
 

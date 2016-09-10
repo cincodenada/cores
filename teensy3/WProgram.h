@@ -16,6 +16,7 @@
 #include "HardwareSerial.h"
 
 #define DMAMEM __attribute__ ((section(".dmabuffers"), used))
+#define FASTRUN __attribute__ ((section(".fastrun"), noinline, noclone ))
 
 #ifdef __cplusplus
 
@@ -28,8 +29,12 @@
 #include "usb_midi.h"
 #include "usb_rawhid.h"
 #include "usb_flightsim.h"
+#include "usb_mtp.h"
+#include "usb_audio.h"
+#include "usb_touch.h"
+#include "usb_undef.h" // do not allow usb_desc.h stuff to leak to user programs
 
-//#include "WCharacter.h"
+#include "WCharacter.h"
 #include "WString.h"
 #include "elapsedMillis.h"
 #include "IntervalTimer.h"
@@ -55,5 +60,18 @@ long map(long, long, long, long, long);
 #include "pins_arduino.h"
 
 #endif // __cplusplus
+
+
+// Fast memcpy
+#if defined(__MK20DX128__) || defined(__MK20DX256__) || defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#ifdef __cplusplus
+extern "C" {
+extern void *memcpy (void *dst, const void *src, size_t count);
+}
+#else
+extern void *memcpy (void *dst, const void *src, size_t count);
+#endif
+#endif
+
 
 #endif // WProgram_h

@@ -44,7 +44,7 @@ String::String(const String &value)
 	*this = value;
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 String::String(String &&rval)
 {
 	init();
@@ -198,7 +198,7 @@ String & String::operator = (const String &rhs)
 	return copy(rhs.buffer, rhs.len);
 }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
+#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 String & String::operator = (String &&rval)
 {
 	if (this != &rval) move(rval);
@@ -248,8 +248,19 @@ String & String::append(const String &s)
 String & String::append(const char *cstr, unsigned int length)
 {
 	unsigned int newlen = len + length;
+	bool self = false;
+	unsigned int buffer_offset; 
+	if ( (cstr >= buffer) && (cstr < (buffer+len) ) ) {
+		self = true;
+		buffer_offset = (unsigned int)(cstr-buffer);
+	}
 	if (length == 0 || !reserve(newlen)) return *this;
-	strcpy(buffer + len, cstr);
+	if ( self ) {
+		memcpy(buffer + len, buffer+buffer_offset, length);
+		buffer[newlen] = 0;
+		}
+	else
+		strcpy(buffer + len, cstr);
 	len = newlen;
 	return *this;
 }

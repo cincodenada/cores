@@ -29,46 +29,66 @@
  */
 
 #include "WProgram.h"
+#include "usb_desc.h"
 
-#ifdef USB_SERIAL
+#if F_CPU >= 20000000
+
+#ifdef CDC_DATA_INTERFACE
+#ifdef CDC_STATUS_INTERFACE
 usb_serial_class Serial;
 #endif
+#endif
 
-#ifdef USB_HID
+#ifdef MIDI_INTERFACE
+usb_midi_class usbMIDI;
+#endif
+
+#ifdef KEYBOARD_INTERFACE
 usb_keyboard_class Keyboard;
+#endif
+
+#ifdef MOUSE_INTERFACE
 usb_mouse_class Mouse;
-usb_joystick_class Joystick;
-uint8_t usb_joystick_class::manual_mode = 0;
+#endif
+
+#ifdef RAWHID_INTERFACE
+usb_rawhid_class RawHID;
+#endif
+
+#ifdef FLIGHTSIM_INTERFACE
+FlightSimClass FlightSim;
+#endif
+
+#ifdef SEREMU_INTERFACE
 usb_seremu_class Serial;
 #endif
 
-#ifdef USB_SERIAL_HID
-usb_serial_class Serial;
-usb_keyboard_class Keyboard;
-usb_mouse_class Mouse;
+#ifdef JOYSTICK_INTERFACE
 usb_joystick_class Joystick;
 uint8_t usb_joystick_class::manual_mode = 0;
 #endif
 
-#ifdef USB_SERIAL_HID_JOY
-usb_serial_class Serial;
-usb_keyboard_class Keyboard;
+#ifdef MULTIJOY_INTERFACE
 usb_multi_joystick_class MultiJoystick;
 uint8_t usb_multi_joystick_class::manual_mode = 0;
 #endif
 
-#ifdef USB_MIDI
-usb_midi_class usbMIDI;
+#ifdef USB_DISABLED
+usb_serial_class Serial;
+#endif
+
+
+#else // F_CPU < 20 MHz
+
+#if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
+usb_serial_class Serial;
+#elif (USB_DISABLED)
+usb_serial_class Serial;
+#else
 usb_seremu_class Serial;
 #endif
 
-#ifdef USB_RAWHID
-usb_rawhid_class RawHID;
-usb_seremu_class Serial;
-#endif
+#endif // F_CPU
 
-#ifdef USB_FLIGHTSIM
-FlightSimClass FlightSim;
-usb_seremu_class Serial;
-#endif
-
+void serialEvent() __attribute__((weak));
+void serialEvent() {}

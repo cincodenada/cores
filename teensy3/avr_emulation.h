@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2013 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows 
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef _avr_emulation_h_
 #define _avr_emulation_h_
 
@@ -661,9 +691,75 @@ private:
 extern DDRCemulation DDRC;
 
 
-
-
-
+#define PINB0 0
+#define PINB1 1
+#define PINB2 2
+#define PINB3 3
+#define PINB4 4
+#define PINB5 5
+#define PINB6 6
+#define PINB7 7
+#define DDB0 0
+#define DDB1 1
+#define DDB2 2
+#define DDB3 3
+#define DDB4 4
+#define DDB5 5
+#define DDB6 6
+#define DDB7 7
+#define PORTB0 0
+#define PORTB1 1
+#define PORTB2 2
+#define PORTB3 3
+#define PORTB4 4
+#define PORTB5 5
+#define PORTB6 6
+#define PORTB7 7
+#define PINC0 0
+#define PINC1 1
+#define PINC2 2
+#define PINC3 3
+#define PINC4 4
+#define PINC5 5
+#define PINC6 6
+#define DDC0 0
+#define DDC1 1
+#define DDC2 2
+#define DDC3 3
+#define DDC4 4
+#define DDC5 5
+#define DDC6 6
+#define PORTC0 0
+#define PORTC1 1
+#define PORTC2 2
+#define PORTC3 3
+#define PORTC4 4
+#define PORTC5 5
+#define PORTC6 6
+#define PIND0 0
+#define PIND1 1
+#define PIND2 2
+#define PIND3 3
+#define PIND4 4
+#define PIND5 5
+#define PIND6 6
+#define PIND7 7
+#define DDD0 0
+#define DDD1 1
+#define DDD2 2
+#define DDD3 3
+#define DDD4 4
+#define DDD5 5
+#define DDD6 6
+#define DDD7 7
+#define PORTD0 0
+#define PORTD1 1
+#define PORTD2 2
+#define PORTD3 3
+#define PORTD4 4
+#define PORTD5 5
+#define PORTD6 6
+#define PORTD7 7
 
 
 
@@ -881,6 +977,18 @@ public:
 		}
 		return ret;
 	}
+	inline void setMOSI(uint8_t pin) __attribute__((always_inline)) {
+		if (pin == 11) pinout &= ~1;
+		if (pin == 7) pinout |= 1;
+	}
+	inline void setMISO(uint8_t pin) __attribute__((always_inline)) {
+		if (pin == 12) pinout &= ~2;
+		if (pin == 8) pinout |= 2;
+	}
+	inline void setSCK(uint8_t pin) __attribute__((always_inline)) {
+		if (pin == 13) pinout &= ~4;
+		if (pin == 14) pinout |= 4;
+	}
 	friend class SPSRemulation;
 private:
 	static inline void update_ctar(uint32_t ctar) __attribute__((always_inline)) {
@@ -894,11 +1002,24 @@ private:
 			SPI0_MCR = mcr;
 		}
 	}
+	static uint8_t pinout;
 	inline void enable_pins(void) __attribute__((always_inline)) {
 		//serial_print("enable_pins\n");
-		CORE_PIN11_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2);
-		CORE_PIN12_CONFIG = PORT_PCR_MUX(2);
-		CORE_PIN13_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2);
+		if ((pinout & 1) == 0) {
+			CORE_PIN11_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // DOUT/MOSI = 11 (PTC6)
+		} else {
+			CORE_PIN7_CONFIG = PORT_PCR_MUX(2); // DOUT/MOSI = 7 (PTD2)
+		}
+		if ((pinout & 2) == 0) {
+			CORE_PIN12_CONFIG = PORT_PCR_MUX(2);  // DIN/MISO = 12 (PTC7)
+		} else {
+			CORE_PIN8_CONFIG = PORT_PCR_MUX(2);  // DIN/MISO = 8 (PTD3)
+		}
+		if ((pinout & 4) == 0) {
+			CORE_PIN13_CONFIG = PORT_PCR_DSE | PORT_PCR_MUX(2); // SCK = 13 (PTC5)
+		} else {
+			CORE_PIN14_CONFIG = PORT_PCR_MUX(2); // SCK = 14 (PTD1)
+		}
 	}
 	inline void disable_pins(void) __attribute__((always_inline)) {
 		//serial_print("disable_pins\n");

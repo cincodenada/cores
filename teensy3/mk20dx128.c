@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2013 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows 
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "mk20dx128.h"
 
 
@@ -18,12 +48,19 @@ void __libc_init_array(void);
 
 void fault_isr(void)
 {
-        while (1); // die
+	while (1) {
+		// keep polling some communication while in fault
+		// mode, so we don't completely die.
+		if (SIM_SCGC4 & SIM_SCGC4_USBOTG) usb_isr();
+		if (SIM_SCGC4 & SIM_SCGC4_UART0) uart0_status_isr();
+		if (SIM_SCGC4 & SIM_SCGC4_UART1) uart1_status_isr();
+		if (SIM_SCGC4 & SIM_SCGC4_UART2) uart2_status_isr();
+	}
 }
 
 void unused_isr(void)
 {
-        while (1); // die
+	fault_isr();
 }
 
 extern volatile uint32_t systick_millis_count;
@@ -189,6 +226,7 @@ void ResetHandler(void)
 {
         uint32_t *src = &_etext;
         uint32_t *dest = &_sdata;
+	unsigned int i;
 
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ1;
 	WDOG_UNLOCK = WDOG_UNLOCK_SEQ2;
@@ -212,6 +250,9 @@ void ResetHandler(void)
         dest = &_sbss;
         while (dest < &_ebss) *dest++ = 0;
 	SCB_VTOR = 0;	// use vector table in flash
+
+	// default all interrupts to medium priority level
+	for (i=0; i < NVIC_NUM_INTERRUPTS; i++) NVIC_SET_PRIORITY(i, 128);
 
         // start in FEI mode
         // enable capacitors for crystal

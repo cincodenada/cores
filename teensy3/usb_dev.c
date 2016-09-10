@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2013 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows 
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "mk20dx128.h"
 //#include "HardwareSerial.h"
 #include "usb_dev.h"
@@ -11,7 +41,21 @@ typedef struct {
 } bdt_t;
 
 __attribute__ ((section(".usbdescriptortable"), used))
-static bdt_t table[64];
+static bdt_t table[(NUM_ENDPOINTS+1)*4];
+
+static usb_packet_t *rx_first[NUM_ENDPOINTS];
+static usb_packet_t *rx_last[NUM_ENDPOINTS];
+static usb_packet_t *tx_first[NUM_ENDPOINTS];
+static usb_packet_t *tx_last[NUM_ENDPOINTS];
+uint16_t usb_rx_byte_count_data[NUM_ENDPOINTS];
+
+static uint8_t tx_state[NUM_ENDPOINTS];
+#define TX_STATE_BOTH_FREE_EVEN_FIRST	0
+#define TX_STATE_BOTH_FREE_ODD_FIRST	1
+#define TX_STATE_EVEN_FREE		2
+#define TX_STATE_ODD_FREE		3
+#define TX_STATE_NONE_FREE_EVEN_FIRST	4
+#define TX_STATE_NONE_FREE_ODD_FIRST	5
 
 #define BDT_OWN		0x80
 #define BDT_DATA1	0x40
@@ -126,10 +170,42 @@ static void usb_setup(void)
 		reg = &USB0_ENDPT1;
 		cfg = usb_endpoint_config_table;
 		// clear all BDT entries, free any allocated memory...
-		for (i=4; i <= NUM_ENDPOINTS*4; i++) {
+		for (i=4; i < (NUM_ENDPOINTS+1)*4; i++) {
 			if (table[i].desc & BDT_OWN) {
 				usb_free((usb_packet_t *)((uint8_t *)(table[i].addr) - 8));
-				table[i].desc = 0;
+			}
+		}
+		// free all queued packets
+		for (i=0; i < NUM_ENDPOINTS; i++) {
+			usb_packet_t *p, *n;
+			p = rx_first[i];
+			while (p) {
+				n = p->next;
+				usb_free(p);
+				p = n;
+			}
+			rx_first[i] = NULL;
+			rx_last[i] = NULL;
+			p = tx_first[i];
+			while (p) {
+				n = p->next;
+				usb_free(p);
+				p = n;
+			}
+			tx_first[i] = NULL;
+			tx_last[i] = NULL;
+			usb_rx_byte_count_data[i] = 0;
+			switch (tx_state[i]) {
+			  case TX_STATE_EVEN_FREE:
+			  case TX_STATE_NONE_FREE_EVEN_FIRST:
+				tx_state[i] = TX_STATE_BOTH_FREE_EVEN_FIRST;
+				break;
+			  case TX_STATE_ODD_FREE:
+			  case TX_STATE_NONE_FREE_ODD_FIRST:
+				tx_state[i] = TX_STATE_BOTH_FREE_ODD_FIRST;
+				break;
+			  default:
+				break;
 			}
 		}
 		usb_rx_memory_needed = 0;
@@ -443,18 +519,6 @@ static void usb_control(uint32_t stat)
 
 
 
-static usb_packet_t *rx_first[NUM_ENDPOINTS];
-static usb_packet_t *rx_last[NUM_ENDPOINTS];
-static usb_packet_t *tx_first[NUM_ENDPOINTS];
-static usb_packet_t *tx_last[NUM_ENDPOINTS];
-uint16_t usb_rx_byte_count_data[NUM_ENDPOINTS];
-
-static uint8_t tx_state[NUM_ENDPOINTS];
-#define TX_STATE_BOTH_FREE_EVEN_FIRST	0
-#define TX_STATE_BOTH_FREE_ODD_FIRST	1
-#define TX_STATE_EVEN_FREE		2
-#define TX_STATE_ODD_FREE		3
-#define TX_STATE_NONE_FREE		4
 
 
 
@@ -513,9 +577,8 @@ uint32_t usb_tx_packet_count(uint32_t endpoint)
 
 	endpoint--;
 	if (endpoint >= NUM_ENDPOINTS) return 0;
-	p = tx_first[endpoint];
 	__disable_irq();
-	for ( ; p; p = p->next) count++;
+	for (p = tx_first[endpoint]; p; p = p->next) count++;
 	__enable_irq();
 	return count;
 }
@@ -591,11 +654,11 @@ void usb_tx(uint32_t endpoint, usb_packet_t *packet)
 		next = TX_STATE_EVEN_FREE;
 		break;
 	  case TX_STATE_EVEN_FREE:
-		next = TX_STATE_NONE_FREE;
+		next = TX_STATE_NONE_FREE_ODD_FIRST;
 		break;
 	  case TX_STATE_ODD_FREE:
 		b++;
-		next = TX_STATE_NONE_FREE;
+		next = TX_STATE_NONE_FREE_EVEN_FIRST;
 		break;
 	  default:
 		if (tx_first[endpoint] == NULL) {
@@ -708,9 +771,12 @@ void usb_isr(void)
 						tx_state[endpoint] = TX_STATE_EVEN_FREE;
 						break;
 					  case TX_STATE_EVEN_FREE:
+						tx_state[endpoint] = TX_STATE_NONE_FREE_ODD_FIRST;
+						break;
 					  case TX_STATE_ODD_FREE:
+						tx_state[endpoint] = TX_STATE_NONE_FREE_EVEN_FIRST;
+						break;
 					  default:
-						tx_state[endpoint] = TX_STATE_NONE_FREE;
 						break;
 					}
 					b->desc = BDT_DESC(packet->len, ((uint32_t)b & 8) ? DATA1 : DATA0);
@@ -891,6 +957,7 @@ void usb_init(void)
 	USB0_INTEN = USB_INTEN_USBRSTEN;
 
 	// enable interrupt in NVIC...
+	NVIC_SET_PRIORITY(IRQ_USBOTG, 112);
 	NVIC_ENABLE_IRQ(IRQ_USBOTG);
 
 	// enable d+ pullup

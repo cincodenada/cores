@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2013 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows 
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #include "mk20dx128.h"
 #include "core_pins.h"
 #include "HardwareSerial.h"
@@ -7,9 +37,14 @@
 
 #define TX_BUFFER_SIZE 40
 static volatile uint8_t tx_buffer[TX_BUFFER_SIZE];
+static volatile uint8_t transmitting = 0;
+#if TX_BUFFER_SIZE > 255
+static volatile uint16_t tx_buffer_head = 0;
+static volatile uint16_t tx_buffer_tail = 0;
+#else
 static volatile uint8_t tx_buffer_head = 0;
 static volatile uint8_t tx_buffer_tail = 0;
-static volatile uint8_t transmitting = 0;
+#endif
 
 #define RX_BUFFER_SIZE 64
 static volatile uint8_t rx_buffer[RX_BUFFER_SIZE];
@@ -37,6 +72,7 @@ void serial2_begin(uint32_t divisor)
 	UART1_C1 = 0;
 	UART1_PFIFO = 0;
 	UART1_C2 = C2_TX_INACTIVE;
+	NVIC_SET_PRIORITY(IRQ_UART1_STATUS, 64);
 	NVIC_ENABLE_IRQ(IRQ_UART1_STATUS);
 }
 
@@ -68,6 +104,12 @@ void serial2_putchar(uint8_t c)
 	UART1_C2 = C2_TX_ACTIVE;
 }
 
+void serial2_write(const void *buf, unsigned int count)
+{
+	const uint8_t *p = (const uint8_t *)buf;
+	while (count-- > 0) serial2_putchar(*p++);
+}
+
 void serial2_flush(void)
 {
 	while (transmitting) yield(); // wait
@@ -75,7 +117,7 @@ void serial2_flush(void)
 
 int serial2_available(void)
 {
-	uint8_t head, tail;
+	uint32_t head, tail;
 
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
@@ -85,7 +127,7 @@ int serial2_available(void)
 
 int serial2_getchar(void)
 {
-	uint8_t head, tail;
+	uint32_t head, tail;
 	int c;
 
 	head = rx_buffer_head;
@@ -99,11 +141,12 @@ int serial2_getchar(void)
 
 int serial2_peek(void)
 {
-	uint8_t head, tail;
+	uint32_t head, tail;
 
 	head = rx_buffer_head;
 	tail = rx_buffer_tail;
 	if (head == tail) return -1;
+	if (++tail >= RX_BUFFER_SIZE) tail = 0;
 	return rx_buffer[tail];
 }
 
@@ -122,7 +165,8 @@ void serial2_clear(void)
 
 void uart1_status_isr(void)
 {
-	uint8_t head, tail, c;
+	uint32_t head, tail;
+	uint8_t c;
 
 	//digitalWriteFast(4, HIGH);
 	if (UART1_S1 & UART_S1_RDRF) {

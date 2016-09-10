@@ -1,3 +1,33 @@
+/* Teensyduino Core Library
+ * http://www.pjrc.com/teensy/
+ * Copyright (c) 2013 PJRC.COM, LLC.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining
+ * a copy of this software and associated documentation files (the
+ * "Software"), to deal in the Software without restriction, including
+ * without limitation the rights to use, copy, modify, merge, publish,
+ * distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to
+ * the following conditions:
+ *
+ * 1. The above copyright notice and this permission notice shall be 
+ * included in all copies or substantial portions of the Software.
+ *
+ * 2. If the Software is incorporated into a build system that allows 
+ * selection among a list of target devices, then similar target
+ * devices manufactured by PJRC.COM must be included in the list of
+ * target devices and selectable in the same manner.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+ * BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ * ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef KEYLAYOUTS_H__
 #define KEYLAYOUTS_H__
 
@@ -540,7 +570,7 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '  
+#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '  
 #define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
@@ -759,7 +789,7 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_6 + SHIFT_MASK			// 38 &
-#define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '  
+#define ASCII_27	KEY_BACKSLASH + SHIFT_MASK		// 39 '  
 #define ASCII_28	KEY_8 + SHIFT_MASK			// 40 ( 
 #define ASCII_29	KEY_9 + SHIFT_MASK			// 41 )
 #define ASCII_2A	KEY_RIGHT_BRACE + SHIFT_MASK		// 42 *
@@ -982,6 +1012,7 @@ extern "C"{
 #define ASCII_24	KEY_4 + SHIFT_MASK			// 36 $
 #define ASCII_25	KEY_5 + SHIFT_MASK			// 37 %
 #define ASCII_26	KEY_7 + SHIFT_MASK			// 38 &
+#define ASCII_27	KEY_COMMA + SHIFT_MASK			// 39 '  
 #define ASCII_27	ACUTE_ACCENT_BITS + KEY_SPACE		// 39 '  
 #define ASCII_28	KEY_9 + SHIFT_MASK			// 40 ( 
 #define ASCII_29	KEY_0 + SHIFT_MASK			// 41 )
@@ -1087,7 +1118,7 @@ extern "C"{
 #define ISO_8859_1_AD	KEY_PERIOD + ALTGR_MASK			// 173       SOFT HYPHEN
 #define ISO_8859_1_AE	0					// 174 ®     REGISTERED SIGN
 #define ISO_8859_1_AF	KEY_COMMA + ALTGR_MASK			// 175 ¯     MACRON
-#define ISO_8859_1_B0	KEY_NON_US_100 + ALTGR_MASK			// 176 °     DEGREE SIGN
+#define ISO_8859_1_B0	KEY_NON_US_100 + ALTGR_MASK		// 176 °     DEGREE SIGN
 #define ISO_8859_1_B1	KEY_1 + ALTGR_MASK			// 177 ±     PLUS-MINUS SIGN
 #define ISO_8859_1_B2	KEY_8 + ALTGR_MASK			// 178 ²     SUPERSCRIPT TWO
 #define ISO_8859_1_B3	KEY_9 + ALTGR_MASK			// 179 ³     SUPERSCRIPT THREE

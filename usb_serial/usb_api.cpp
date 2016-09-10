@@ -136,7 +136,7 @@ size_t usb_serial_class::readBytes(char *buffer, size_t length)
 {
 	size_t count=0;
 	unsigned long startMillis;
-	uint8_t c, num, intr_state;
+	uint8_t num, intr_state;
 
 	startMillis = millis();
 	if (length <= 0) return 0;

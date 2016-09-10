@@ -71,6 +71,7 @@ uint8_t usb_joystick_class::manual_mode = 0;
 #ifdef MULTIJOY_INTERFACE
 usb_multi_joystick_class MultiJoystick;
 uint8_t usb_multi_joystick_class::manual_mode = 0;
+uint8_t usb_multi_joystick_class::joynum = 0;
 #endif
 
 #ifdef USB_DISABLED

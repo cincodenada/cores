@@ -1,0 +1,757 @@
+diff -u -w usb_serial_hid/core_id.h usb_serial_hid_joy/core_id.h
+--- usb_serial_hid/core_id.h	2016-09-10 11:37:30.801082400 -0700
++++ usb_serial_hid_joy/core_id.h	2016-09-10 11:53:15.495837000 -0700
+@@ -1,5 +1,4 @@
+ #define CORE_TEENSY_SERIAL
+ #define CORE_TEENSY_HID
+ #define CORE_TEENSY_KEYBOARD
+-#define CORE_TEENSY_MOUSE
+-#define CORE_TEENSY_JOYSTICK
++#define CORE_TEENSY_MULTIJOY
+diff -u -w usb_serial_hid/usb_api.cpp usb_serial_hid_joy/usb_api.cpp
+--- usb_serial_hid/usb_api.cpp	2016-09-10 11:56:53.618948500 -0700
++++ usb_serial_hid_joy/usb_api.cpp	2016-09-10 11:53:15.496851000 -0700
+@@ -789,93 +789,21 @@
+ 
+ 
+ 
+-
+-void usb_mouse_class::move(int8_t x, int8_t y, int8_t wheel)
+-{
+-        uint8_t intr_state, timeout;
+-
+-        if (!usb_configuration) return;
+-        if (x == -128) x = -127;
+-        if (y == -128) y = -127;
+-        if (wheel == -128) wheel = -127;
+-        intr_state = SREG;
+-        cli();
+-        UENUM = MOUSE_ENDPOINT;
+-        timeout = UDFNUML + 50;
+-        while (1) {
+-                // are we ready to transmit?
+-                if (UEINTX & (1<<RWAL)) break;
+-                SREG = intr_state;
+-                // has the USB gone offline?
+-                if (!usb_configuration) return;
+-                // have we waited too long?
+-                if (UDFNUML == timeout) return;
+-                // get ready to try checking again
+-                intr_state = SREG;
+-                cli();
+-                UENUM = MOUSE_ENDPOINT;
+-        }
+-        UEDATX = mouse_buttons;
+-        UEDATX = x;
+-        UEDATX = y;
+-        UEDATX = wheel;
+-        UEINTX = 0x3A;
+-        SREG = intr_state;
+-}
+-
+-void usb_mouse_class::click(uint8_t b)
++uint8_t usb_multi_joystick_class::num_joys(void)
+ {
+-        mouse_buttons = (b & 7);
+-        move(0, 0);
+-        mouse_buttons = 0;
+-        move(0, 0);
++    return MULTIJOY_COUNT;
+ }
+ 
+-void usb_mouse_class::scroll(int8_t wheel)
+-{
+-        move(0, 0, wheel);
+-}
+ 
+-void usb_mouse_class::set_buttons(uint8_t left, uint8_t middle, uint8_t right)
+-{
+-        uint8_t mask=0;
+-
+-        if (left) mask |= 1;
+-        if (middle) mask |= 4;
+-        if (right) mask |= 2;
+-        mouse_buttons = mask;
+-        move(0, 0);
+-}
+-
+-void usb_mouse_class::press(uint8_t b)
+-{
+-        uint8_t prev = mouse_buttons;
+-        mouse_buttons |= (b & 7);
+-        if (mouse_buttons != prev) move(0, 0);
+-}
+-
+-void usb_mouse_class::release(uint8_t b)
+-{
+-        uint8_t prev = mouse_buttons;
+-        mouse_buttons &= ~(b & 7);
+-        if (mouse_buttons != prev) move(0, 0);
+-}
+-
+-bool usb_mouse_class::isPressed(uint8_t b)
+-{
+-        return ((mouse_buttons & (b & 7)) != 0);
+-}
+-
+-
+-
+-void usb_joystick_class::send_now(void)
++void usb_multi_joystick_class::send_now(void)
+ {
+         uint8_t intr_state, timeout;
+ 
+         if (!usb_configuration) return;
+         intr_state = SREG;
+         cli();
+-        UENUM = JOYSTICK_ENDPOINT;
++        if(joynum >= MULTIJOY_COUNT) { return; }
++        UENUM = MULTIJOY_ENDPOINT + joynum;
+         timeout = UDFNUML + 50;
+         while (1) {
+                 // are we ready to transmit?
+@@ -888,20 +816,20 @@
+                 // get ready to try checking again
+                 intr_state = SREG;
+                 cli();
+-                UENUM = JOYSTICK_ENDPOINT;
++                UENUM = MULTIJOY_ENDPOINT + joynum;
+         }
+-        UEDATX = joystick_report_data[0];
+-        UEDATX = joystick_report_data[1];
+-        UEDATX = joystick_report_data[2];
+-        UEDATX = joystick_report_data[3];
+-        UEDATX = joystick_report_data[4];
+-        UEDATX = joystick_report_data[5];
+-        UEDATX = joystick_report_data[6];
+-        UEDATX = joystick_report_data[7];
+-        UEDATX = joystick_report_data[8];
+-        UEDATX = joystick_report_data[9];
+-        UEDATX = joystick_report_data[10];
+-        UEDATX = joystick_report_data[11];
++        UEDATX = multi_joystick_report_data[joynum][0];
++        UEDATX = multi_joystick_report_data[joynum][1];
++        UEDATX = multi_joystick_report_data[joynum][2];
++        UEDATX = multi_joystick_report_data[joynum][3];
++        UEDATX = multi_joystick_report_data[joynum][4];
++        UEDATX = multi_joystick_report_data[joynum][5];
++        UEDATX = multi_joystick_report_data[joynum][6];
++        UEDATX = multi_joystick_report_data[joynum][7];
++        UEDATX = multi_joystick_report_data[joynum][8];
++        UEDATX = multi_joystick_report_data[joynum][9];
++        UEDATX = multi_joystick_report_data[joynum][10];
++        UEDATX = multi_joystick_report_data[joynum][11];
+         UEINTX = 0x3A;
+         SREG = intr_state;
+ }
+@@ -911,11 +839,9 @@
+ 
+ 
+ 
+-
+ // Preinstantiate Objects //////////////////////////////////////////////////////
+ 
+ usb_serial_class        Serial = usb_serial_class();
+ usb_keyboard_class      Keyboard = usb_keyboard_class();
+-usb_mouse_class         Mouse = usb_mouse_class();
+-usb_joystick_class      Joystick = usb_joystick_class();
++usb_multi_joystick_class      MultiJoystick = usb_multi_joystick_class();
+ 
+Only in usb_serial_hid_joy: .usb_api.cpp.swp
+diff -u -w usb_serial_hid/usb_api.h usb_serial_hid_joy/usb_api.h
+--- usb_serial_hid/usb_api.h	2016-09-10 11:56:53.619309200 -0700
++++ usb_serial_hid_joy/usb_api.h	2016-09-10 11:53:15.497125000 -0700
+@@ -82,101 +82,78 @@
+ extern usb_keyboard_class Keyboard;
+ 
+ 
++extern uint8_t multi_joystick_report_data[][12];
+ 
+-#define MOUSE_LEFT 1
+-#define MOUSE_MIDDLE 4
+-#define MOUSE_RIGHT 2
+-#define MOUSE_ALL (MOUSE_LEFT | MOUSE_RIGHT | MOUSE_MIDDLE)
+-
+-class usb_mouse_class
+-{
+-        public:
+-	void begin(void) { }
+-	void end(void) { }
+-        void move(int8_t x, int8_t y, int8_t wheel=0);
+-        void click(uint8_t b = MOUSE_LEFT);
+-        void scroll(int8_t wheel);
+-        void set_buttons(uint8_t left, uint8_t middle=0, uint8_t right=0);
+-        void press(uint8_t b = MOUSE_LEFT);
+-        void release(uint8_t b = MOUSE_LEFT);
+-        bool isPressed(uint8_t b = MOUSE_ALL);
+-};
+-
+-extern usb_mouse_class Mouse;
+-
+-
+-extern uint8_t joystick_report_data[12];
+-
+-class usb_joystick_class
++class usb_multi_joystick_class
+ {
+         public:
+-        usb_joystick_class() { manual_mode = 0; }
++        usb_multi_joystick_class() { manual_mode = 0; joynum = 0; }
+         inline void button(uint8_t button, bool val) {
+                 button--;
+                 uint8_t mask = (1 << (button & 7));
+                 if (val) {
+-                        if (button < 8) joystick_report_data[0] |= mask;
+-                        else if (button < 16) joystick_report_data[1] |= mask;
+-                        else if (button < 24) joystick_report_data[2] |= mask;
+-                        else if (button < 32) joystick_report_data[3] |= mask;
++                        if (button < 8) multi_joystick_report_data[joynum][0] |= mask;
++                        else if (button < 16) multi_joystick_report_data[joynum][1] |= mask;
++                        else if (button < 24) multi_joystick_report_data[joynum][2] |= mask;
++                        else if (button < 32) multi_joystick_report_data[joynum][3] |= mask;
+                 } else {
+                         mask = ~mask;
+-                        if (button < 8) joystick_report_data[0] &= mask;
+-                        else if (button < 16) joystick_report_data[1] &= mask;
+-                        else if (button < 24) joystick_report_data[2] &= mask;
+-                        else if (button < 32) joystick_report_data[3] &= mask;
++                        if (button < 8) multi_joystick_report_data[joynum][0] &= mask;
++                        else if (button < 16) multi_joystick_report_data[joynum][1] &= mask;
++                        else if (button < 24) multi_joystick_report_data[joynum][2] &= mask;
++                        else if (button < 32) multi_joystick_report_data[joynum][3] &= mask;
+                 }
+                 if (!manual_mode) send_now();
+         }
+         inline void X(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[4] = (joystick_report_data[4] & 0x0F) | (val << 4);
+-                joystick_report_data[5] = (joystick_report_data[5] & 0xC0) | (val >> 4);
++                multi_joystick_report_data[joynum][4] = (multi_joystick_report_data[joynum][4] & 0x0F) | (val << 4);
++                multi_joystick_report_data[joynum][5] = (multi_joystick_report_data[joynum][5] & 0xC0) | (val >> 4);
+                 if (!manual_mode) send_now();
+         }
+         inline void Y(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[5] = (joystick_report_data[5] & 0x3F) | (val << 6);
+-                joystick_report_data[6] = (val >> 2);
++                multi_joystick_report_data[joynum][5] = (multi_joystick_report_data[joynum][5] & 0x3F) | (val << 6);
++                multi_joystick_report_data[joynum][6] = (val >> 2);
+                 if (!manual_mode) send_now();
+         }
+         inline void position(uint16_t x, uint16_t y) {
+                 if (x > 1023) x = 1023;
+                 if (y > 1023) y = 1023;
+-                joystick_report_data[4] = (joystick_report_data[4] & 0x0F) | (x << 4);
+-                joystick_report_data[5] = (x >> 4) | (y << 6);
+-                joystick_report_data[6] = (y >> 2);
++                multi_joystick_report_data[joynum][4] = (multi_joystick_report_data[joynum][4] & 0x0F) | (x << 4);
++                multi_joystick_report_data[joynum][5] = (x >> 4) | (y << 6);
++                multi_joystick_report_data[joynum][6] = (y >> 2);
+                 if (!manual_mode) send_now();
+         }
+         inline void Z(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[7] = val;
+-                joystick_report_data[8] = (joystick_report_data[8] & 0xFC) | (val >> 8);
++                multi_joystick_report_data[joynum][7] = val;
++                multi_joystick_report_data[joynum][8] = (multi_joystick_report_data[joynum][8] & 0xFC) | (val >> 8);
+                 if (!manual_mode) send_now();
+         }
+         inline void Zrotate(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[8] = (joystick_report_data[8] & 0x03) | (val << 2);
+-                joystick_report_data[9] = (joystick_report_data[9] & 0xF0) | (val >> 6);
++                multi_joystick_report_data[joynum][8] = (multi_joystick_report_data[joynum][8] & 0x03) | (val << 2);
++                multi_joystick_report_data[joynum][9] = (multi_joystick_report_data[joynum][9] & 0xF0) | (val >> 6);
+                 if (!manual_mode) send_now();
+         }
+         inline void sliderLeft(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[9] = (joystick_report_data[9] & 0x0F) | (val << 4);
+-                joystick_report_data[10] = (joystick_report_data[10] & 0xC0) | (val >> 4);
++                multi_joystick_report_data[joynum][9] = (multi_joystick_report_data[joynum][9] & 0x0F) | (val << 4);
++                multi_joystick_report_data[joynum][10] = (multi_joystick_report_data[joynum][10] & 0xC0) | (val >> 4);
+                 if (!manual_mode) send_now();
+         }
+         inline void sliderRight(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[10] = (joystick_report_data[10] & 0x3F) | (val << 6);
+-                joystick_report_data[11] = (val >> 2);
++                multi_joystick_report_data[joynum][10] = (multi_joystick_report_data[joynum][10] & 0x3F) | (val << 6);
++                multi_joystick_report_data[joynum][11] = (val >> 2);
+                 if (!manual_mode) send_now();
+         }
+         inline void slider(uint16_t val) {
+                 if (val > 1023) val = 1023;
+-                joystick_report_data[9] = (joystick_report_data[9] & 0x0F) | (val << 4);
+-                joystick_report_data[10] = (val >> 4) | (val << 6);
+-                joystick_report_data[11] = (val >> 2);
++                multi_joystick_report_data[joynum][9] = (multi_joystick_report_data[joynum][9] & 0x0F) | (val << 4);
++                multi_joystick_report_data[joynum][10] = (val >> 4) | (val << 6);
++                multi_joystick_report_data[joynum][11] = (val >> 2);
+                 if (!manual_mode) send_now();
+         }
+         inline void hat(int16_t dir) {
+@@ -190,19 +167,45 @@
+                 else if (dir < 245) val = 5;
+                 else if (dir < 293) val = 6;
+                 else if (dir < 338) val = 7;
+-                joystick_report_data[4] = (joystick_report_data[4] & 0xF0) | val;
++                multi_joystick_report_data[joynum][4] = (multi_joystick_report_data[joynum][4] & 0xF0) | val;
++                if (!manual_mode) send_now();
++        }
++        inline void axis(uint8_t axisnum, uint16_t val) {
++                uint8_t bytenum, bitoffset, lowshift;
++                uint8_t lowmask, highmask;
++                if (val > 1023) val = 1023;
++                axisnum--;
++
++                //TODO: Precalculate these somewhere?
++                //Axis values are 10 bits each, starting at the upper nibble of byte 4 (byte 4, bit 4)
++                //(all above are zero-indexed)
++                bitoffset = 4*8 + 4 + (axisnum * 10);
++                bytenum = bitoffset >> 3;
++
++                lowshift = bitoffset % 8;
++
++                lowmask = ~(0xFF << lowshift);
++                highmask = (~lowmask) << 2;
++
++                multi_joystick_report_data[joynum][bytenum] = (multi_joystick_report_data[joynum][bytenum] & lowmask) | (val << lowshift);
++                multi_joystick_report_data[joynum][bytenum+1] = (multi_joystick_report_data[joynum][bytenum+1] & highmask) | (val >> (8 - lowshift));
+                 if (!manual_mode) send_now();
+         }
+         inline void useManualSend(bool mode) {
+                 manual_mode = mode;
+         }
++        inline void setJoyNum(uint8_t num) {
++                joynum = num;
++        }
++        uint8_t num_joys(void);
+         void send_now(void);
+         private:
+         //static uint8_t manual_mode;
+         uint8_t manual_mode;
++        uint8_t joynum;
+ };
+ 
+-extern usb_joystick_class Joystick;
++extern usb_multi_joystick_class MultiJoystick;
+ 
+ 
+ #endif
+Only in usb_serial_hid_joy: .usb_api.h.swp
+diff -u -w usb_serial_hid/usb.c usb_serial_hid_joy/usb.c
+--- usb_serial_hid/usb.c	2016-09-10 11:56:53.618468900 -0700
++++ usb_serial_hid_joy/usb.c	2016-09-10 11:53:15.496430200 -0700
+@@ -35,11 +35,15 @@
+ 
+ static const uint8_t PROGMEM endpoint_config_table[] = {
+ 	EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER,
++#ifdef ENABLE_SERIAL
+ 	EP_TYPE_INTERRUPT_IN,  EP_SIZE(CDC_ACM_SIZE) | CDC_ACM_BUFFER,
+ 	EP_TYPE_BULK_OUT,      EP_SIZE(CDC_RX_SIZE) | CDC_RX_BUFFER,
+ 	EP_TYPE_BULK_IN,       EP_SIZE(CDC_TX_SIZE) | CDC_TX_BUFFER,
+-	EP_TYPE_INTERRUPT_IN,  EP_SIZE(MOUSE_SIZE) | MOUSE_BUFFER,
+-	EP_TYPE_INTERRUPT_IN,  EP_SIZE(JOYSTICK_SIZE) | JOYSTICK_BUFFER,
++#endif
++	EP_TYPE_INTERRUPT_IN,  EP_SIZE(MULTIJOY_SIZE) | MULTIJOY_BUFFER,
++	EP_TYPE_INTERRUPT_IN,  EP_SIZE(MULTIJOY_SIZE) | MULTIJOY_BUFFER,
++	EP_TYPE_INTERRUPT_IN,  EP_SIZE(MULTIJOY_SIZE) | MULTIJOY_BUFFER,
++	EP_TYPE_INTERRUPT_IN,  EP_SIZE(MULTIJOY_SIZE) | MULTIJOY_BUFFER,
+ };
+ 
+ 
+@@ -119,36 +123,6 @@
+         0xc0                    // End Collection
+ };
+ 
+-// Mouse Protocol 1, HID 1.11 spec, Appendix B, page 59-60, with wheel extension
+-static const uint8_t PROGMEM mouse_hid_report_desc[] = {
+-        0x05, 0x01,                     // Usage Page (Generic Desktop)
+-        0x09, 0x02,                     // Usage (Mouse)
+-        0xA1, 0x01,                     // Collection (Application)
+-        0x05, 0x09,                     //   Usage Page (Button)
+-        0x19, 0x01,                     //   Usage Minimum (Button #1)
+-        0x29, 0x03,                     //   Usage Maximum (Button #3)
+-        0x15, 0x00,                     //   Logical Minimum (0)
+-        0x25, 0x01,                     //   Logical Maximum (1)
+-        0x95, 0x03,                     //   Report Count (3)
+-        0x75, 0x01,                     //   Report Size (1)
+-        0x81, 0x02,                     //   Input (Data, Variable, Absolute)
+-        0x95, 0x01,                     //   Report Count (1)
+-        0x75, 0x05,                     //   Report Size (5)
+-        0x81, 0x03,                     //   Input (Constant)
+-        0x05, 0x01,                     //   Usage Page (Generic Desktop)
+-        0x09, 0x30,                     //   Usage (X)
+-        0x09, 0x31,                     //   Usage (Y)
+-        0x15, 0x81,                     //   Logical Minimum (-127)
+-        0x25, 0x7F,                     //   Logical Maximum (127)
+-        0x75, 0x08,                     //   Report Size (8),
+-        0x95, 0x02,                     //   Report Count (2),
+-        0x81, 0x06,                     //   Input (Data, Variable, Relative)
+-        0x09, 0x38,                     //   Usage (Wheel)
+-        0x95, 0x01,                     //   Report Count (1),
+-        0x81, 0x06,                     //   Input (Data, Variable, Relative)
+-        0xC0                            // End Collection
+-};
+-
+ static const uint8_t PROGMEM joystick_hid_report_desc[] = {
+         0x05, 0x01,                     // Usage Page (Generic Desktop)
+         0x09, 0x04,                     // Usage (Joystick)
+@@ -195,9 +169,9 @@
+ };
+ 
+ #define KEYBOARD_HID_DESC_OFFSET        ( 9+8 + 9+5+5+4+5+7+9+7+7 + 9 )
+-#define MOUSE_HID_DESC_OFFSET           ( 9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9 )
+-#define JOYSTICK_HID_DESC_OFFSET	( 9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9+9+7 + 9 )
+-#define CONFIG1_DESC_SIZE		( 9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9+9+7 + 9+9+7 )
++#define MULTIJOY_HID_DESC_OFFSET        ( 9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9 )
++#define MULTIJOY_HID_DESC_SIZE          ( 9+9+7 )
++#define CONFIG1_DESC_SIZE		        ( 9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + MULTIJOY_HID_DESC_SIZE * MULTIJOY_COUNT)
+ 
+ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
+ 	// configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
+@@ -205,7 +179,7 @@
+ 	2,					// bDescriptorType;
+ 	LSB(CONFIG1_DESC_SIZE),			// wTotalLength
+ 	MSB(CONFIG1_DESC_SIZE),
+-	5,					// bNumInterfaces
++	7,					// bNumInterfaces
+ 	1,					// bConfigurationValue
+ 	0,					// iConfiguration
+ 	0xC0,					// bmAttributes
+@@ -295,6 +269,7 @@
+         0x01,                                   // bInterfaceProtocol (0x01 = Keyboard)
+         0,                                      // iInterface
+         // HID interface descriptor, HID 1.11 spec, section 6.2.1
++        // KEYBOARD_HID_DESC_OFFSET
+         9,                                      // bLength
+         0x21,                                   // bDescriptorType
+         0x11, 0x01,                             // bcdHID
+@@ -314,12 +289,68 @@
+         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+         9,                                      // bLength
+         4,                                      // bDescriptorType
+-        MOUSE_INTERFACE,                        // bInterfaceNumber
++        (MULTIJOY_INTERFACE + 0),               // bInterfaceNumber
+         0,                                      // bAlternateSetting
+         1,                                      // bNumEndpoints
+         0x03,                                   // bInterfaceClass (0x03 = HID)
+-        0x01,                                   // bInterfaceSubClass (0x01 = Boot)
+-        0x02,                                   // bInterfaceProtocol (0x02 = Mouse)
++        0x00,                                   // bInterfaceSubClass
++        0x00,                                   // bInterfaceProtocol
++        0,                                      // iInterface
++        // HID interface descriptor, HID 1.11 spec, section 6.2.1
++        //MULTIJOY_HID_DESC_OFFSET
++        9,                                      // bLength
++        0x21,                                   // bDescriptorType
++        0x11, 0x01,                             // bcdHID
++        0,                                      // bCountryCode
++        1,                                      // bNumDescriptors
++        0x22,                                   // bDescriptorType
++        sizeof(joystick_hid_report_desc),          // wDescriptorLength
++        0,
++        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
++        7,                                      // bLength
++        5,                                      // bDescriptorType
++        (MULTIJOY_ENDPOINT + 0) | 0x80,         // bEndpointAddress
++        0x03,                                   // bmAttributes (0x03=intr)
++        12, 0,                                  // wMaxPacketSize
++        MULTIJOY_INTERVAL,                      // bInterval
++
++        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
++        9,                                      // bLength
++        4,                                      // bDescriptorType
++        (MULTIJOY_INTERFACE + 1),               // bInterfaceNumber
++        0,                                      // bAlternateSetting
++        1,                                      // bNumEndpoints
++        0x03,                                   // bInterfaceClass (0x03 = HID)
++        0x00,                                   // bInterfaceSubClass
++        0x00,                                   // bInterfaceProtocol
++        0,                                      // iInterface
++        // HID interface descriptor, HID 1.11 spec, section 6.2.1
++        9,                                      // bLength
++        0x21,                                   // bDescriptorType
++        0x11, 0x01,                             // bcdHID
++        0,                                      // bCountryCode
++        1,                                      // bNumDescriptors
++        0x22,                                   // bDescriptorType
++        sizeof(joystick_hid_report_desc),       // wDescriptorLength
++        0,
++        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
++        7,                                      // bLength
++        5,                                      // bDescriptorType
++        (MULTIJOY_ENDPOINT + 1) | 0x80,         // bEndpointAddress
++        0x03,                                   // bmAttributes (0x03=intr)
++        12, 0,                                  // wMaxPacketSize
++#ifndef ENABLE_SERIAL
++        MULTIJOY_INTERVAL,                      // bInterval
++
++        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
++        9,                                      // bLength
++        4,                                      // bDescriptorType
++        (MULTIJOY_INTERFACE + 2),               // bInterfaceNumber
++        0,                                      // bAlternateSetting
++        1,                                      // bNumEndpoints
++        0x03,                                   // bInterfaceClass (0x03 = HID)
++        0x00,                                   // bInterfaceSubClass
++        0x00,                                   // bInterfaceProtocol
+         0,                                      // iInterface
+         // HID interface descriptor, HID 1.11 spec, section 6.2.1
+         9,                                      // bLength
+@@ -328,20 +359,20 @@
+         0,                                      // bCountryCode
+         1,                                      // bNumDescriptors
+         0x22,                                   // bDescriptorType
+-        sizeof(mouse_hid_report_desc),          // wDescriptorLength
++        sizeof(joystick_hid_report_desc),       // wDescriptorLength
+         0,
+         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+         7,                                      // bLength
+         5,                                      // bDescriptorType
+-        MOUSE_ENDPOINT | 0x80,                  // bEndpointAddress
++        (MULTIJOY_ENDPOINT + 2) | 0x80,         // bEndpointAddress
+         0x03,                                   // bmAttributes (0x03=intr)
+-        MOUSE_SIZE, 0,                          // wMaxPacketSize
+-        MOUSE_INTERVAL,                         // bInterval
++        12, 0,                                  // wMaxPacketSize
++        MULTIJOY_INTERVAL,                      // bInterval
+ 
+         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+         9,                                      // bLength
+         4,                                      // bDescriptorType
+-        JOYSTICK_INTERFACE,                     // bInterfaceNumber
++        (MULTIJOY_INTERFACE + 3),               // bInterfaceNumber
+         0,                                      // bAlternateSetting
+         1,                                      // bNumEndpoints
+         0x03,                                   // bInterfaceClass (0x03 = HID)
+@@ -360,10 +391,11 @@
+         // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+         7,                                      // bLength
+         5,                                      // bDescriptorType
+-        JOYSTICK_ENDPOINT | 0x80,               // bEndpointAddress
++        (MULTIJOY_ENDPOINT + 3) | 0x80,         // bEndpointAddress
+         0x03,                                   // bmAttributes (0x03=intr)
+         12, 0,                                  // wMaxPacketSize
+-        JOYSTICK_INTERVAL                       // bInterval
++#endif
++        MULTIJOY_INTERVAL                       // bInterval
+ };
+ 
+ // If you're desperate for a little extra code memory, these strings
+@@ -412,10 +444,16 @@
+ 	{0x0200, 0x0000, config1_descriptor, sizeof(config1_descriptor)},
+         {0x2200, KEYBOARD_INTERFACE, keyboard_hid_report_desc, sizeof(keyboard_hid_report_desc)},
+         {0x2100, KEYBOARD_INTERFACE, config1_descriptor+KEYBOARD_HID_DESC_OFFSET, 9},
+-        {0x2200, MOUSE_INTERFACE, mouse_hid_report_desc, sizeof(mouse_hid_report_desc)},
+-        {0x2100, MOUSE_INTERFACE, config1_descriptor+MOUSE_HID_DESC_OFFSET, 9},
+-        {0x2200, JOYSTICK_INTERFACE, joystick_hid_report_desc, sizeof(joystick_hid_report_desc)},
+-        {0x2100, JOYSTICK_INTERFACE, config1_descriptor+JOYSTICK_HID_DESC_OFFSET, 9},
++        {0x2200, (MULTIJOY_INTERFACE + 0), joystick_hid_report_desc, sizeof(joystick_hid_report_desc)},
++        {0x2100, (MULTIJOY_INTERFACE + 0), config1_descriptor+MULTIJOY_HID_DESC_OFFSET + (MULTIJOY_HID_DESC_SIZE * 0), 9},
++        {0x2200, (MULTIJOY_INTERFACE + 1), joystick_hid_report_desc, sizeof(joystick_hid_report_desc)},
++        {0x2100, (MULTIJOY_INTERFACE + 1), config1_descriptor+MULTIJOY_HID_DESC_OFFSET + (MULTIJOY_HID_DESC_SIZE * 1), 9},
++#ifndef ENABLE_SERIAL
++        {0x2200, (MULTIJOY_INTERFACE + 2), joystick_hid_report_desc, sizeof(joystick_hid_report_desc)},
++        {0x2100, (MULTIJOY_INTERFACE + 2), config1_descriptor+MULTIJOY_HID_DESC_OFFSET + (MULTIJOY_HID_DESC_SIZE * 2), 9},
++        {0x2200, (MULTIJOY_INTERFACE + 3), joystick_hid_report_desc, sizeof(joystick_hid_report_desc)},
++        {0x2100, (MULTIJOY_INTERFACE + 3), config1_descriptor+MULTIJOY_HID_DESC_OFFSET + (MULTIJOY_HID_DESC_SIZE * 3), 9},
++#endif
+ 	{0x0300, 0x0000, (const uint8_t *)&string0, 4},
+ 	{0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_MANUFACTURER)},
+ 	{0x0302, 0x0409, (const uint8_t *)&string2, sizeof(STR_PRODUCT)},
+@@ -469,18 +507,8 @@
+ // 1=num lock, 2=caps lock, 4=scroll lock, 8=compose, 16=kana
+ volatile uint8_t keyboard_leds USBSTATE;
+ 
+-// which buttons are currently pressed
+-uint8_t mouse_buttons USBSTATE;
+-
+-// protocol setting from the host.  We use exactly the same report
+-// either way, so this variable only stores the setting since we
+-// are required to be able to report which setting is in use.
+-static uint8_t mouse_protocol USBSTATE;
+-
+ // joystick data
+-uint8_t joystick_report_data[12] USBSTATE;
+-
+-
++uint8_t multi_joystick_report_data[MULTIJOY_COUNT][12] USBSTATE;
+ 
+ /**************************************************************************
+  *
+@@ -492,7 +520,7 @@
+ // initialize USB serial
+ void usb_init(void)
+ {
+-	uint8_t u;
++	uint8_t u, i;
+ 
+ 	u = USBCON;
+ 	if ((u & (1<<USBE)) && !(u & (1<<FRZCLK))) return;
+@@ -517,20 +545,20 @@
+         keyboard_idle_config = 125;
+         keyboard_idle_count = 0;
+         keyboard_leds = 0;
+-        mouse_buttons = 0;
+-        mouse_protocol = 1;
+-        joystick_report_data[0] = 0;
+-        joystick_report_data[1] = 0;
+-        joystick_report_data[2] = 0;
+-        joystick_report_data[3] = 0;
+-        joystick_report_data[4] =  0x0F;
+-        joystick_report_data[5] =  0x20;
+-        joystick_report_data[6] =  0x80;
+-        joystick_report_data[7] =  0x00;
+-        joystick_report_data[8] =  0x02;
+-        joystick_report_data[9] =  0x08;
+-        joystick_report_data[10] = 0x20;
+-        joystick_report_data[11] = 0x80;
++        for(i=0; i<MULTIJOY_COUNT;i++) {
++        multi_joystick_report_data[i][0] = 0;
++        multi_joystick_report_data[i][1] = 0;
++        multi_joystick_report_data[i][2] = 0;
++        multi_joystick_report_data[i][3] = 0;
++        multi_joystick_report_data[i][4] =  0x0F;
++        multi_joystick_report_data[i][5] =  0x20;
++        multi_joystick_report_data[i][6] =  0x80;
++        multi_joystick_report_data[i][7] =  0x00;
++        multi_joystick_report_data[i][8] =  0x02;
++        multi_joystick_report_data[i][9] =  0x08;
++        multi_joystick_report_data[i][10] = 0x20;
++        multi_joystick_report_data[i][11] = 0x80;
++        }
+ 	UDINT = 0;
+         UDIEN = (1<<EORSTE)|(1<<SOFE)|(1<<SUSPE);
+ }
+@@ -741,7 +769,7 @@
+ 			transmit_flush_timer = 0;
+ 			usb_send_in();
+ 			cfg = endpoint_config_table;
+-			for (i=1; i<7; i++) {
++			for (i=1; i <= MAX_ENDPOINT; i++) {
+ 				UENUM = i;
+ 				//pgm_read_byte_postinc(en, cfg);
+ 				//UECONX = en;
+@@ -876,38 +904,12 @@
+                                 }
+                         }
+                 }
+-                if (wIndex == MOUSE_INTERFACE) {
+-                        if (bmRequestType == 0xA1) {
+-                                if (bRequest == HID_GET_REPORT) {
+-                                        usb_wait_in_ready();
+-                                        UEDATX = mouse_buttons;
+-                                        UEDATX = 0;
+-                                        UEDATX = 0;
+-                                        UEDATX = 0;
+-                                        usb_send_in();
+-                                        return;
+-                                }
+-                                if (bRequest == HID_GET_PROTOCOL) {
+-                                        usb_wait_in_ready();
+-                                        UEDATX = mouse_protocol;
+-                                        usb_send_in();
+-                                        return;
+-                                }
+-                        }
+-                        if (bmRequestType == 0x21) {
+-                                if (bRequest == HID_SET_PROTOCOL) {
+-                                        mouse_protocol = wValue;
+-                                        usb_send_in();
+-                                        return;
+-                                }
+-                        }
+-                }
+-                if (wIndex == JOYSTICK_INTERFACE) {
++                if (wIndex >= MULTIJOY_INTERFACE && wIndex < (MULTIJOY_INTERFACE + MULTIJOY_COUNT)) {
+                         if (bmRequestType == 0xA1) {
+                                 if (bRequest == HID_GET_REPORT) {
+                                         usb_wait_in_ready();
+                                         for (i=0; i<12; i++) {
+-                                                UEDATX = joystick_report_data[i];
++                                                UEDATX = multi_joystick_report_data[wIndex-MULTIJOY_INTERFACE][i];
+                                         }
+                                         usb_send_in();
+                                         return;
+diff -u -w usb_serial_hid/usb_private.h usb_serial_hid_joy/usb_private.h
+--- usb_serial_hid/usb_private.h	2016-09-10 11:37:30.802734400 -0700
++++ usb_serial_hid_joy/usb_private.h	2016-09-10 11:53:15.497366800 -0700
+@@ -16,7 +16,7 @@
+ // You can change these to give your code its own name.  On Windows,
+ // these are only used before an INF file (driver install) is loaded.
+ #define STR_MANUFACTURER        L"Teensyduino"
+-#define STR_PRODUCT             L"Serial+Keyboard+Mouse+Joystick"
++#define STR_PRODUCT             L"Serial+4xJoystick"
+ #define STR_SERIAL		L"Serial"
+ 
+ // Some operating systems, especially Windows, may cache USB device
+@@ -73,7 +73,9 @@
+  *
+  **************************************************************************/
+ 
+-
++//Uncomment this line to enable the USB serial port
++//This will disable two joysticks, since we only have 6 endpoints
++//#define ENABLE_SERIAL
+ 
+ #define ENDPOINT0_SIZE          64
+ 
+@@ -83,28 +85,31 @@
+ #define KEYBOARD_BUFFER         EP_DOUBLE_BUFFER
+ #define KEYBOARD_INTERVAL       1
+ 
+-#define CDC_ACM_ENDPOINT        2
++#ifdef ENABLE_SERIAL
++#define CDC_SHIFT 0
++#define MULTIJOY_SHIFT 3
++#define MULTIJOY_COUNT 2
++#else
++#define CDC_SHIFT 3
++#define MULTIJOY_SHIFT 0
++#define MULTIJOY_COUNT 4
++#endif
++
++#define CDC_ACM_ENDPOINT        2 + CDC_SHIFT
+ #define CDC_ACM_SIZE            16
+ #define CDC_ACM_BUFFER          EP_SINGLE_BUFFER
+-#define CDC_RX_ENDPOINT         3
++#define CDC_RX_ENDPOINT         3 + CDC_SHIFT
+ #define CDC_RX_SIZE             64
+ #define CDC_RX_BUFFER           EP_DOUBLE_BUFFER
+-#define CDC_TX_ENDPOINT         4
++#define CDC_TX_ENDPOINT         4 + CDC_SHIFT
+ #define CDC_TX_BUFFER           EP_DOUBLE_BUFFER
+ #define CDC_TX_SIZE             64
+ 
+-#define MOUSE_INTERFACE         3
+-#define MOUSE_ENDPOINT          5
+-#define MOUSE_SIZE              8
+-#define MOUSE_BUFFER            EP_DOUBLE_BUFFER
+-#define MOUSE_INTERVAL          2
+-
+-#define JOYSTICK_INTERFACE      4
+-#define JOYSTICK_ENDPOINT       6
+-#define JOYSTICK_SIZE           16
+-#define JOYSTICK_BUFFER         EP_DOUBLE_BUFFER
+-#define JOYSTICK_INTERVAL       1
+-
++#define MULTIJOY_INTERFACE      3
++#define MULTIJOY_ENDPOINT       2 + MULTIJOY_SHIFT
++#define MULTIJOY_SIZE           16
++#define MULTIJOY_BUFFER         EP_DOUBLE_BUFFER
++#define MULTIJOY_INTERVAL       1
+ 
+ // setup
+ void usb_init(void);			// initialize everything
+@@ -129,7 +134,7 @@
+ extern uint8_t keyboard_idle_count;
+ extern volatile uint8_t keyboard_leds;
+ extern uint8_t mouse_buttons;
+-extern uint8_t joystick_report_data[12];
++extern uint8_t multi_joystick_report_data[MULTIJOY_COUNT][12];
+ 
+ 
+ #ifdef __cplusplus

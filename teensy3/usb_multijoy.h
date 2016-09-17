@@ -103,7 +103,7 @@ class usb_multijoy_class
                 if (!manual_mode) usb_multijoy_send(joynum);
         }
         inline void hat(int dir) {
-                uint32_t val;
+                uint32_t val = 0;
                 if (dir < 0) val = 15;
                 else if (dir < 23) val = 0;
                 else if (dir < 68) val = 1;
@@ -117,8 +117,8 @@ class usb_multijoy_class
                 if (!manual_mode) usb_multijoy_send(joynum);
         }
         inline void axis(uint8_t axisnum, uint16_t val) {
-                uint8_t bytenum, bitoffset, lowshift;
-                uint8_t lowmask, highmask;
+                //uint8_t bytenum, bitoffset, lowshift;
+                //uint8_t lowmask, highmask;
                 if (val > 1023) val = 1023;
 
                 switch(axisnum) {
@@ -134,7 +134,6 @@ class usb_multijoy_class
                         sliderLeft(val); break;
                   case 6:
                         sliderRight(val); break;
-                  default:
                 }
 
                 /*
@@ -165,7 +164,7 @@ class usb_multijoy_class
         void setJoyNum(uint8_t num) {
                 joynum = num;
         }
-        void num_joys(void) {
+        uint8_t num_joys(void) {
                 return MULTIJOY_COUNT;
         }
         void send_now(void) {

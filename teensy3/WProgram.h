@@ -26,6 +26,7 @@
 #include "usb_keyboard.h"
 #include "usb_mouse.h"
 #include "usb_joystick.h"
+#include "usb_multijoy.h"
 #include "usb_midi.h"
 #include "usb_rawhid.h"
 #include "usb_flightsim.h"

@@ -81,7 +81,7 @@ usb_serial_class Serial;
 
 #else // F_CPU < 20 MHz
 
-#if defined(USB_SERIAL) || defined(USB_SERIAL_HID)
+#if defined(USB_SERIAL) || defined(USB_SERIAL_HID) || defined(USB_SERIAL_MULTIJOY)
 usb_serial_class Serial;
 #elif (USB_DISABLED)
 usb_serial_class Serial;

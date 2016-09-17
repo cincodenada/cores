@@ -368,10 +368,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define MULTIJOY_ENDPOINT     5
   #define MULTIJOY_SIZE         16
   #define MULTIJOY_INTERVAL     1
-  #define KEYBOARD_DESC_OFFSET	(9+8 + 9+5+5+4+5+7+9+7+7 + 9)
-  #define MULTIJOY_DESC_OFFSET	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + 9)
-  #define MULTIJOY_DESC_SIZE	(9+9+7)
-  #define CONFIG_DESC_SIZE	(9+8 + 9+5+5+4+5+7+9+7+7 + 9+9+7 + MULTIJOY_HID_DESC_SIZE * MULTIJOY_COUNT)
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY

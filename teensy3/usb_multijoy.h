@@ -56,51 +56,51 @@ class usb_multijoy_class
                 if (--button >= 32) return;
                 if (val) usb_multijoy_data[joynum][0] |= (1 << button);
                 else usb_multijoy_data[joynum][0] &= ~(1 << button);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void X(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][1] = (usb_multijoy_data[joynum][1] & 0xFFFFC00F) | (val << 4);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void Y(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][1] = (usb_multijoy_data[joynum][1] & 0xFF003FFF) | (val << 14);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void position(unsigned int x, unsigned int y) {
                 if (x > 1023) x = 1023;
                 if (y > 1023) y = 1023;
                 usb_multijoy_data[joynum][1] = (usb_multijoy_data[joynum][1] & 0xFFF00000)
                         | (x << 4) | (y << 14);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void Z(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][1] = (usb_multijoy_data[joynum][1] & 0x00FFFFFF) | (val << 24);
                 usb_multijoy_data[joynum][2] = (usb_multijoy_data[joynum][2] & 0xFFFFFFFC) | (val >> 8);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void Zrotate(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][2] = (usb_multijoy_data[joynum][2] & 0xFFFFF003) | (val << 2);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void sliderLeft(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][2] = (usb_multijoy_data[joynum][2] & 0xFFC00FFF) | (val << 12);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void sliderRight(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][2] = (usb_multijoy_data[joynum][2] & 0x003FFFFF) | (val << 22);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void slider(unsigned int val) {
                 if (val > 1023) val = 1023;
                 usb_multijoy_data[joynum][2] = (usb_multijoy_data[joynum][2] & 0x00000FFF)
                         | (val << 12) | (val << 22);
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         inline void hat(int dir) {
                 uint32_t val;
@@ -114,7 +114,7 @@ class usb_multijoy_class
                 else if (dir < 293) val = 6;
                 else if (dir < 338) val = 7;
                 usb_multijoy_data[joynum][1] = (usb_multijoy_data[joynum][1] & 0xFFFFFFF0) | val;
-                if (!manual_mode) usb_multijoy_send();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         inline void axis(uint8_t axisnum, uint16_t val) {
                 uint8_t bytenum, bitoffset, lowshift;
@@ -157,7 +157,7 @@ class usb_multijoy_class
                 usb_multijoy_data[joynum][dwordnum] = (usb_multijoy_data[joynum][dwordnum] & lowmask) | (val << lowshift);
                 usb_multijoy_data[joynum][dwordnum+1] = (usb_multijoy_data[joynum][dwordnum+1] & highmask) | (val >> (8 - lowshift));
                 */
-                if (!manual_mode) send_now();
+                if (!manual_mode) usb_multijoy_send(joynum);
         }
         void useManualSend(bool mode) {
                 manual_mode = mode;

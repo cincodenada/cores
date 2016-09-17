@@ -928,7 +928,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
                 // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
                 9,                                      // bLength
                 4,                                      // bDescriptorType
-                (MULTIJOY_INTERFACE + 0)                // bInterfaceNumber
+                (MULTIJOY_INTERFACE + 0),               // bInterfaceNumber
                 0,                                      // bAlternateSetting
                 1,                                      // bNumEndpoints
                 0x03,                                   // bInterfaceClass (0x03 = HID)
@@ -956,7 +956,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
                 // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
                 9,                                      // bLength
                 4,                                      // bDescriptorType
-                (MULTIJOY_INTERFACE + 1)                // bInterfaceNumber
+                (MULTIJOY_INTERFACE + 1),               // bInterfaceNumber
                 0,                                      // bAlternateSetting
                 1,                                      // bNumEndpoints
                 0x03,                                   // bInterfaceClass (0x03 = HID)
@@ -984,7 +984,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
                 // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
                 9,                                      // bLength
                 4,                                      // bDescriptorType
-                (MULTIJOY_INTERFACE + 2)                // bInterfaceNumber
+                (MULTIJOY_INTERFACE + 2),               // bInterfaceNumber
                 0,                                      // bAlternateSetting
                 1,                                      // bNumEndpoints
                 0x03,                                   // bInterfaceClass (0x03 = HID)
@@ -1012,7 +1012,7 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
                 // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
                 9,                                      // bLength
                 4,                                      // bDescriptorType
-                (MULTIJOY_INTERFACE + 3)                // bInterfaceNumber
+                (MULTIJOY_INTERFACE + 3),               // bInterfaceNumber
                 0,                                      // bAlternateSetting
                 1,                                      // bNumEndpoints
                 0x03,                                   // bInterfaceClass (0x03 = HID)

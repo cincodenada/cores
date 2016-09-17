@@ -262,18 +262,18 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 #elif defined(USB_SERIAL_MULTIJOY)
   #define MULTIJOY_COUNT	4
   #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0487
+  #define PRODUCT_ID		0x0487 // TODO: unique?
   #define DEVICE_CLASS		0xEF
   #define DEVICE_SUBCLASS	0x02
   #define DEVICE_PROTOCOL	0x01
   #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
   #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','2','x','J','o','y','s','t','i','c','k'}
+  #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','0'+MULTIJOY_COUNT,'x','J','o','y','s','t','i','c','k'}
   #define PRODUCT_NAME_LEN	26
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		4 + MULTIJOY_COUNT
   #define NUM_USB_BUFFERS	30
-  #define NUM_INTERFACE		2 + MULTIJOY_COUNT
+  #define NUM_INTERFACE		3 + MULTIJOY_COUNT
   #define CDC_IAD_DESCRIPTOR	1
   #define CDC_STATUS_INTERFACE	0
   #define CDC_DATA_INTERFACE	1	// Serial

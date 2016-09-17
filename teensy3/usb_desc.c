@@ -1453,19 +1453,19 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
 #ifdef MULTIJOY_INTERFACE
         #if MULTIJOY_COUNT > 0
                 {0x2200, (MULTIJOY_INTERFACE + 0), multijoy_report_desc, sizeof(multijoy_report_desc)},
-                {0x2100, (MULTIJOY_INTERFACE + 0), config_descriptor+MULTIJOY_HID_DESC_OFFSET, 9},
+                {0x2100, (MULTIJOY_INTERFACE + 0), config_descriptor+MULTIJOY_HID_DESC_OFFSET+(MULTIJOY_INTERFACE_DESC_SIZE*0), 9},
         #endif
         #if MULTIJOY_COUNT > 1
                 {0x2200, (MULTIJOY_INTERFACE + 1), multijoy_report_desc, sizeof(multijoy_report_desc)},
-                {0x2100, (MULTIJOY_INTERFACE + 1), config_descriptor+MULTIJOY_HID_DESC_OFFSET, 9},
+                {0x2100, (MULTIJOY_INTERFACE + 1), config_descriptor+MULTIJOY_HID_DESC_OFFSET+(MULTIJOY_INTERFACE_DESC_SIZE*1), 9},
         #endif
         #if MULTIJOY_COUNT > 2
                 {0x2200, (MULTIJOY_INTERFACE + 2), multijoy_report_desc, sizeof(multijoy_report_desc)},
-                {0x2100, (MULTIJOY_INTERFACE + 2), config_descriptor+MULTIJOY_HID_DESC_OFFSET, 9},
+                {0x2100, (MULTIJOY_INTERFACE + 2), config_descriptor+MULTIJOY_HID_DESC_OFFSET+(MULTIJOY_INTERFACE_DESC_SIZE*2), 9},
         #endif
         #if MULTIJOY_COUNT > 3
                 {0x2200, (MULTIJOY_INTERFACE + 3), multijoy_report_desc, sizeof(multijoy_report_desc)},
-                {0x2100, (MULTIJOY_INTERFACE + 3), config_descriptor+MULTIJOY_HID_DESC_OFFSET, 9},
+                {0x2100, (MULTIJOY_INTERFACE + 3), config_descriptor+MULTIJOY_HID_DESC_OFFSET+(MULTIJOY_INTERFACE_DESC_SIZE*3), 9},
         #endif
 #endif
 #ifdef RAWHID_INTERFACE

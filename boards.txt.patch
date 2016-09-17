@@ -4,7 +4,7 @@
  teensy31.menu.usb.hid.fake_serial=teensy_gateway
  teensy31.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy31.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensy31.menu.usb.serialmultijoy.name=Serial + Keyboard + 4 Joystick
++teensy31.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
 +teensy31.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensy31.menu.usb.midi=MIDI
  teensy31.menu.usb.midi.build.usbtype=USB_MIDI

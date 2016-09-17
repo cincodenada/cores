@@ -259,6 +259,58 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT7_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
+#elif defined(USB_SERIAL_MULTIJOY)
+  #define MULTIJOY_COUNT	4
+  #define VENDOR_ID		0x16C0
+  #define PRODUCT_ID		0x0487
+  #define DEVICE_CLASS		0xEF
+  #define DEVICE_SUBCLASS	0x02
+  #define DEVICE_PROTOCOL	0x01
+  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN	11
+  #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','2','x','J','o','y','s','t','i','c','k'}
+  #define PRODUCT_NAME_LEN	26
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS		4 + MULTIJOY_COUNT
+  #define NUM_USB_BUFFERS	30
+  #define NUM_INTERFACE		2 + MULTIJOY_COUNT
+  #define CDC_IAD_DESCRIPTOR	1
+  #define CDC_STATUS_INTERFACE	0
+  #define CDC_DATA_INTERFACE	1	// Serial
+  #define CDC_ACM_ENDPOINT	2
+  #define CDC_RX_ENDPOINT       3
+  #define CDC_TX_ENDPOINT       4
+  #define CDC_ACM_SIZE          16
+  #define CDC_RX_SIZE           64
+  #define CDC_TX_SIZE           64
+  #define KEYBOARD_INTERFACE    2	// Keyboard
+  #define KEYBOARD_ENDPOINT     1
+  #define KEYBOARD_SIZE         8
+  #define KEYBOARD_INTERVAL     1
+  #define MULTIJOY_INTERFACE    3
+  #define MULTIJOY_ENDPOINT     5
+  #define MULTIJOY_SIZE         16
+  #define MULTIJOY_INTERVAL     1
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT8_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  // In case we eventually want more than 4
+  // The eventual include of these checks against NUM_ENDPOINTS
+  // So this should be perfectly safe
+  #define ENDPOINT9_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT10_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT11_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT12_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT13_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT14_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT15_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+  #define ENDPOINT16_CONFIG	ENDPOINT_TRANSIMIT_ONLY
+
 #elif defined(USB_TOUCHSCREEN)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x048B
@@ -335,58 +387,6 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
   #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-
-#elif defined(USB_SERIAL_MULTIJOY)
-  #define MULTIJOY_COUNT	4
-  #define VENDOR_ID		0x16C0
-  #define PRODUCT_ID		0x0487
-  #define DEVICE_CLASS		0xEF
-  #define DEVICE_SUBCLASS	0x02
-  #define DEVICE_PROTOCOL	0x01
-  #define MANUFACTURER_NAME	{'T','e','e','n','s','y','d','u','i','n','o'}
-  #define MANUFACTURER_NAME_LEN	11
-  #define PRODUCT_NAME		{'S','e','r','i','a','l','/','K','e','y','b','o','a','r','d','/','2','x','J','o','y','s','t','i','c','k'}
-  #define PRODUCT_NAME_LEN	26
-  #define EP0_SIZE		64
-  #define NUM_ENDPOINTS		4 + MULTIJOY_COUNT
-  #define NUM_USB_BUFFERS	30
-  #define NUM_INTERFACE		2 + MULTIJOY_COUNT
-  #define CDC_IAD_DESCRIPTOR	1
-  #define CDC_STATUS_INTERFACE	0
-  #define CDC_DATA_INTERFACE	1	// Serial
-  #define CDC_ACM_ENDPOINT	2
-  #define CDC_RX_ENDPOINT       3
-  #define CDC_TX_ENDPOINT       4
-  #define CDC_ACM_SIZE          16
-  #define CDC_RX_SIZE           64
-  #define CDC_TX_SIZE           64
-  #define KEYBOARD_INTERFACE    2	// Keyboard
-  #define KEYBOARD_ENDPOINT     1
-  #define KEYBOARD_SIZE         8
-  #define KEYBOARD_INTERVAL     1
-  #define MULTIJOY_INTERFACE    3
-  #define MULTIJOY_ENDPOINT     5
-  #define MULTIJOY_SIZE         16
-  #define MULTIJOY_INTERVAL     1
-  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT3_CONFIG	ENDPOINT_RECEIVE_ONLY
-  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT5_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT6_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT7_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT8_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  // In case we eventually want more than 4
-  // The eventual include of these checks against NUM_ENDPOINTS
-  // So this should be perfectly safe
-  #define ENDPOINT9_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT10_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT11_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT12_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT13_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT14_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT15_CONFIG	ENDPOINT_TRANSIMIT_ONLY
-  #define ENDPOINT16_CONFIG	ENDPOINT_TRANSIMIT_ONLY
 
 #elif defined(USB_MIDI)
   #define VENDOR_ID		0x16C0

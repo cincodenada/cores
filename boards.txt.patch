@@ -1,64 +1,78 @@
---- boards.txt.orig	2016-09-25 22:30:41.428908824 -0700
-+++ boards.txt	2016-09-25 22:49:14.253551837 -0700
-@@ -46,6 +46,8 @@
+--- /usr/share/arduino/hardware/teensy/avr/boards.txt	2016-09-25 22:30:41.428908824 -0700
++++ /usr/share/arduino/hardware/teensy/avr/boards.txt	2016-09-25 22:49:14.253551837 -0700
+@@ -46,6 +46,10 @@
  teensy36.menu.usb.hid.fake_serial=teensy_gateway
  teensy36.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy36.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensy36.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensy36.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensy36.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensy36.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensy36.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensy36.menu.usb.midi=MIDI
  teensy36.menu.usb.midi.build.usbtype=USB_MIDI
  teensy36.menu.usb.midi.fake_serial=teensy_gateway
-@@ -230,6 +232,8 @@
+@@ -230,6 +232,10 @@
  teensy35.menu.usb.hid.fake_serial=teensy_gateway
  teensy35.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy35.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensy35.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensy35.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensy35.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensy35.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensy35.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensy35.menu.usb.midi=MIDI
  teensy35.menu.usb.midi.build.usbtype=USB_MIDI
  teensy35.menu.usb.midi.fake_serial=teensy_gateway
-@@ -401,6 +405,8 @@
+@@ -401,6 +405,10 @@
  teensy31.menu.usb.hid.fake_serial=teensy_gateway
  teensy31.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy31.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensy31.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensy31.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensy31.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensy31.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensy31.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensy31.menu.usb.midi=MIDI
  teensy31.menu.usb.midi.build.usbtype=USB_MIDI
  teensy31.menu.usb.midi.fake_serial=teensy_gateway
-@@ -577,6 +583,8 @@
+@@ -577,6 +583,10 @@
  teensy30.menu.usb.hid.fake_serial=teensy_gateway
  teensy30.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy30.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensy30.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensy30.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensy30.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensy30.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensy30.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensy30.menu.usb.touch=Keyboard + Touch Screen
  teensy30.menu.usb.touch.build.usbtype=USB_TOUCHSCREEN
  teensy30.menu.usb.touch.fake_serial=teensy_gateway
-@@ -693,6 +701,8 @@
+@@ -693,6 +701,10 @@
  teensyLC.menu.usb.hid.fake_serial=teensy_gateway
  teensyLC.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensyLC.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensyLC.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensyLC.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensyLC.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensyLC.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensyLC.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensyLC.menu.usb.touch=Keyboard + Touch Screen
  teensyLC.menu.usb.touch.build.usbtype=USB_TOUCHSCREEN
  teensyLC.menu.usb.touch.fake_serial=teensy_gateway
-@@ -815,6 +825,8 @@
+@@ -815,6 +825,10 @@
  teensypp2.menu.usb.hid.fake_serial=teensy_gateway
  teensypp2.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensypp2.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensypp2.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensypp2.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensypp2.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensypp2.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensypp2.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensypp2.menu.usb.int_disk=Disk(Internal) + Keyboard
  teensypp2.menu.usb.int_disk.build.usbtype=USB_DISK
  teensypp2.menu.usb.int_disk.fake_serial=teensy_gateway
-@@ -931,6 +943,8 @@
+@@ -931,6 +943,10 @@
  teensy2.menu.usb.hid.fake_serial=teensy_gateway
  teensy2.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy2.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID
-+teensy2.menu.usb.serialmultijoy=Serial + Keyboard + 4 Joystick
++teensy2.menu.usb.multijoy=Serial + Keyboard + 2 Joystick
++teensy2.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensy2.menu.usb.serialmultijoy=Keyboard + 4 Joystick
 +teensy2.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
  teensy2.menu.usb.int_disk=Disk(Internal) + Keyboard
  teensy2.menu.usb.int_disk.build.usbtype=USB_DISK

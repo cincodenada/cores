@@ -13,6 +13,11 @@ extern "C"{
  *
  **************************************************************************/
 
+// Serial port enabling is dependent on USB_SERIAL_MULTIJOY vs USB_MULTIJOY
+#ifdef USB_SERIAL_MULTIJOY
+#define ENABLE_SERIAL
+#endif
+
 // You can change these to give your code its own name.  On Windows,
 // these are only used before an INF file (driver install) is loaded.
 #define STR_MANUFACTURER        L"Teensyduino"
@@ -72,10 +77,6 @@ extern "C"{
  *  Endpoint Buffer Configuration
  *
  **************************************************************************/
-
-//Uncomment this line to enable the USB serial port
-//This will disable two joysticks, since we only have 6 endpoints
-//#define ENABLE_SERIAL
 
 #define ENDPOINT0_SIZE          64
 

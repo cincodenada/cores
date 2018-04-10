@@ -4,7 +4,7 @@
 #include "../usb_hid/usb.c"
 #elif defined(USB_SERIAL_HID)
 #include "../usb_serial_hid/usb.c"
-#elif defined(USB_SERIAL_MULTIJOY)
+#elif defined(USB_SERIAL_MULTIJOY) || defined(USB_MULTIJOY)
 #include "../usb_serial_multijoy/usb.c"
 #elif defined(USB_DISK) || defined(USB_DISK_SDFLASH)
 #include "../usb_disk/usb.c"

@@ -229,7 +229,7 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	// endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
 	7,					// bLength
 	5,					// bDescriptorType
-	CDC_ACM_ENDPOINT | 0x80,		// bEndpointAddress
+	(CDC_ACM_ENDPOINT | 0x80),		// bEndpointAddress
 	0x03,					// bmAttributes (0x03=intr)
 	CDC_ACM_SIZE, 0,			// wMaxPacketSize
 	64,					// bInterval
@@ -253,7 +253,7 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	// endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
 	7,					// bLength
 	5,					// bDescriptorType
-	CDC_TX_ENDPOINT | 0x80,			// bEndpointAddress
+	(CDC_TX_ENDPOINT | 0x80),			// bEndpointAddress
 	0x02,					// bmAttributes (0x02=bulk)
 	CDC_TX_SIZE, 0,				// wMaxPacketSize
 	0,					// bInterval

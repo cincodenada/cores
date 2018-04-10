@@ -167,6 +167,8 @@ class usb_multi_joystick_class
                 else if (dir < 245) val = 5;
                 else if (dir < 293) val = 6;
                 else if (dir < 338) val = 7;
+                else if (dir < 360) val = 0;
+                else val = 15;
                 multi_joystick_report_data[joynum][4] = (multi_joystick_report_data[joynum][4] & 0xF0) | val;
                 if (!manual_mode) send_now();
         }

@@ -21,7 +21,11 @@ extern "C"{
 // You can change these to give your code its own name.  On Windows,
 // these are only used before an INF file (driver install) is loaded.
 #define STR_MANUFACTURER        L"Teensyduino"
-#define STR_PRODUCT             L"Serial+4xJoystick"
+#ifdef ENABLE_SERIAL
+#define STR_PRODUCT             L"Serial+2xJoystick"
+#else
+#define STR_PRODUCT             L"4xJoystick"
+#endif
 #define STR_SERIAL		L"Serial"
 
 // Some operating systems, especially Windows, may cache USB device

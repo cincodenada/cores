@@ -1,6 +1,6 @@
 /* Teensyduino Core Library
  * http://www.pjrc.com/teensy/
- * Copyright (c) 2013 PJRC.COM, LLC.
+ * Copyright (c) 2017 PJRC.COM, LLC.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -41,6 +41,7 @@
 #define INPUT_PULLUP	2
 #define INPUT_PULLDOWN   3
 #define OUTPUT_OPENDRAIN 4
+#define INPUT_DISABLE   5
 #define LSBFIRST	0
 #define MSBFIRST	1
 #define _BV(n)		(1<<(n))
@@ -112,13 +113,42 @@
 #define CORE_NUM_INTERRUPT      24  // really only 18, but 6 "holes"
 #define CORE_NUM_ANALOG         13
 #define CORE_NUM_PWM            10
-#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#elif defined(__MK64FX512__)
 #define CORE_NUM_TOTAL_PINS     64
 #define CORE_NUM_DIGITAL        64
 #define CORE_NUM_INTERRUPT      64
-#define CORE_NUM_ANALOG         23
+#define CORE_NUM_ANALOG         27
 #define CORE_NUM_PWM            20
+#elif defined(__MK66FX1M0__)
+#define CORE_NUM_TOTAL_PINS     64
+#define CORE_NUM_DIGITAL        64
+#define CORE_NUM_INTERRUPT      64
+#define CORE_NUM_ANALOG         25
+#define CORE_NUM_PWM            22
 #endif
+
+// These MAX_PIN_PORTx values have the highest Kinetis pin index
+// that is used for a given port.
+#if defined(__MK20DX128__) || defined(__MK20DX256__)
+#define CORE_MAX_PIN_PORTA        13
+#define CORE_MAX_PIN_PORTB        19
+#define CORE_MAX_PIN_PORTC        11
+#define CORE_MAX_PIN_PORTD         7
+#define CORE_MAX_PIN_PORTE         1
+#elif defined(__MKL26Z64__)
+#define CORE_MAX_PIN_PORTA         2
+#define CORE_MAX_PIN_PORTB        17
+#define CORE_MAX_PIN_PORTC         7
+#define CORE_MAX_PIN_PORTD         7
+#define CORE_MAX_PIN_PORTE        30
+#elif defined(__MK64FX512__) || defined(__MK66FX1M0__)
+#define CORE_MAX_PIN_PORTA        29
+#define CORE_MAX_PIN_PORTB        23
+#define CORE_MAX_PIN_PORTC        11
+#define CORE_MAX_PIN_PORTD        15
+#define CORE_MAX_PIN_PORTE        26
+#endif
+
 
 #if defined(__MK20DX128__) || defined(__MK20DX256__)
 
@@ -1261,8 +1291,8 @@
 #define CORE_ADC7_PIN		21
 #define CORE_ADC8_PIN		22
 #define CORE_ADC9_PIN		23
-#define CORE_ADC10_PIN		40
-#define CORE_ADC11_PIN		41
+#define CORE_ADC10_PIN		64
+#define CORE_ADC11_PIN		65
 #define CORE_ADC12_PIN		31
 #define CORE_ADC13_PIN		32
 #define CORE_ADC14_PIN		33
@@ -1272,6 +1302,12 @@
 #define CORE_ADC18_PIN		37
 #define CORE_ADC19_PIN		38
 #define CORE_ADC20_PIN		39
+#define CORE_ADC21_PIN		66
+#define CORE_ADC22_PIN		67
+#define CORE_ADC23_PIN		49
+#define CORE_ADC24_PIN		50
+#define CORE_ADC25_PIN		68
+#define CORE_ADC26_PIN		69
 
 #define CORE_RXD0_PIN		0
 #define CORE_TXD0_PIN		1
@@ -1353,6 +1389,86 @@
 #endif
 
 
+#if defined(__MK20DX128__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#elif defined(__MK20DX256__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	32
+#define CORE_FTM2_CH1_PIN	25
+#elif defined(__MKL26Z64__)
+#define CORE_TPM0_CH0_PIN	22
+#define CORE_TPM0_CH1_PIN	23
+#define CORE_TPM0_CH2_PIN	 9
+#define CORE_TPM0_CH3_PIN	10
+#define CORE_TPM0_CH4_PIN	 6
+#define CORE_TPM0_CH5_PIN	20
+#define CORE_TPM1_CH0_PIN	16
+#define CORE_TPM1_CH1_PIN	17
+#define CORE_TPM2_CH0_PIN	 3
+#define CORE_TPM2_CH1_PIN	 4
+#elif defined(__MK64FX512__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	29
+#define CORE_FTM2_CH1_PIN	30
+#define CORE_FTM3_CH0_PIN	 2
+#define CORE_FTM3_CH1_PIN	14
+#define CORE_FTM3_CH2_PIN	 7
+#define CORE_FTM3_CH3_PIN	 8
+#define CORE_FTM3_CH4_PIN	35
+#define CORE_FTM3_CH5_PIN	36
+#define CORE_FTM3_CH6_PIN	37
+#define CORE_FTM3_CH7_PIN	38
+#elif defined(__MK66FX1M0__)
+#define CORE_FTM0_CH0_PIN	22
+#define CORE_FTM0_CH1_PIN	23
+#define CORE_FTM0_CH2_PIN	 9
+#define CORE_FTM0_CH3_PIN	10
+#define CORE_FTM0_CH4_PIN	 6
+#define CORE_FTM0_CH5_PIN	20
+#define CORE_FTM0_CH6_PIN	21
+#define CORE_FTM0_CH7_PIN	 5
+#define CORE_FTM1_CH0_PIN	 3
+#define CORE_FTM1_CH1_PIN	 4
+#define CORE_FTM2_CH0_PIN	29
+#define CORE_FTM2_CH1_PIN	30
+#define CORE_FTM3_CH0_PIN	 2
+#define CORE_FTM3_CH1_PIN	14
+#define CORE_FTM3_CH2_PIN	 7
+#define CORE_FTM3_CH3_PIN	 8
+#define CORE_FTM3_CH4_PIN	35
+#define CORE_FTM3_CH5_PIN	36
+#define CORE_FTM3_CH6_PIN	37
+#define CORE_FTM3_CH7_PIN	38
+#define CORE_TPM1_CH0_PIN	16
+#define CORE_TPM1_CH1_PIN	17
+#endif
 
 
 #ifdef __cplusplus
@@ -1802,8 +1918,8 @@ static inline uint8_t digitalReadFast(uint8_t pin)
 void pinMode(uint8_t pin, uint8_t mode);
 void init_pins(void);
 void analogWrite(uint8_t pin, int val);
-void analogWriteRes(uint32_t bits);
-static inline void analogWriteResolution(uint32_t bits) { analogWriteRes(bits); }
+uint32_t analogWriteRes(uint32_t bits);
+static inline uint32_t analogWriteResolution(uint32_t bits) { return analogWriteRes(bits); }
 void analogWriteFrequency(uint8_t pin, float frequency);
 void analogWriteDAC0(int val);
 void analogWriteDAC1(int val);

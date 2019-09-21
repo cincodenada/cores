@@ -20,12 +20,8 @@ extern "C"{
 
 // You can change these to give your code its own name.  On Windows,
 // these are only used before an INF file (driver install) is loaded.
-#define STR_MANUFACTURER        L"Teensyduino"
-#ifdef ENABLE_SERIAL
-#define STR_PRODUCT             L"Serial+2xJoystick"
-#else
-#define STR_PRODUCT             L"4xJoystick"
-#endif
+#define STR_MANUFACTURER        L"Bensussen Deutsch & Associates,Inc.(BDA)"
+#define STR_PRODUCT             L"Core (Plus) Wired Controller"
 #define STR_SERIAL		L"Serial"
 
 // Some operating systems, especially Windows, may cache USB device
@@ -49,14 +45,14 @@ extern "C"{
 // Udev rules (in /etc/udev/rules.d) can define persistent device
 // names linked to this serial number, as well as permissions, owner
 // and group settings.
-#define STR_SERIAL_NUMBER       L"12345"
+#define STR_SERIAL_NUMBER       L"000000000001"
 
 // Mac OS-X and Linux automatically load the correct drivers.  On
 // Windows, even though the driver is supplied by Microsoft, an
 // INF file is needed to load the driver.  These numbers need to
 // match the INF file.
-#define VENDOR_ID               0x16C0
-#define PRODUCT_ID              0x0487
+#define VENDOR_ID               0x20D6
+#define PRODUCT_ID              0xA711
 
 // When you write data, it goes into a USB endpoint buffer, which
 // is transmitted to the PC when it becomes full, or after a timeout

@@ -30,6 +30,8 @@
 +teensy31.menu.usb.serialmultijoy.build.usbtype=USB_SERIAL_MULTIJOY
 +teensy31.menu.usb.multijoy=Keyboard + 4 Joystick
 +teensy31.menu.usb.multijoy.build.usbtype=USB_MULTIJOY
++teensy31.menu.usb.gamepad=Gamepad
++teensy31.menu.usb.gamepad.build.usbtype=USB_GAMEPAD
  teensy31.menu.usb.midi=MIDI
  teensy31.menu.usb.midi.build.usbtype=USB_MIDI
  teensy31.menu.usb.midi.fake_serial=teensy_gateway

@@ -400,7 +400,7 @@ static uint8_t multijoy_report_desc[] = {
 #endif
 
 #ifdef GAMEPAD_INTERFACE
-static uint8_t multijoy_report_desc[] = {
+static uint8_t gamepad_report_desc[] = {
         0x05, 0x01,                     // Usage Page (Generic Desktop)
         0x09, 0x04,                     // Usage (Joystick)
         0xA1, 0x01,                     // Collection (Application)
@@ -647,7 +647,15 @@ static uint8_t flightsim_report_desc[] = {
 #define MULTIJOY_INTERFACE_DESC_SIZE	0
 #endif
 
-#define MTP_INTERFACE_DESC_POS		MULTIJOY_INTERFACE_DESC_POS+MULTIJOY_INTERFACE_DESC_SIZE
+#define GAMEPAD_INTERFACE_DESC_POS	MULTIJOY_INTERFACE_DESC_POS+MULTIJOY_INTERFACE_DESC_SIZE
+#ifdef  GAMEPAD_INTERFACE
+#define GAMEPAD_INTERFACE_DESC_SIZE	9+9+7
+#define GAMEPAD_HID_DESC_OFFSET	GAMEPAD_INTERFACE_DESC_POS+9
+#else
+#define GAMEPAD_INTERFACE_DESC_SIZE	0
+#endif
+
+#define MTP_INTERFACE_DESC_POS		GAMEPAD_INTERFACE_DESC_POS+GAMEPAD_INTERFACE_DESC_SIZE
 #ifdef  MTP_INTERFACE
 #define MTP_INTERFACE_DESC_SIZE		9+7+7+7
 #else
@@ -1314,6 +1322,35 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         // changes here also need to be mirrored up in usb_descriptor_list
 #endif // MULTIJOY_INTERFACE
 
+#ifdef GAMEPAD_INTERFACE
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        GAMEPAD_INTERFACE,                     // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x03,                                   // bInterfaceClass (0x03 = HID)
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // HID interface descriptor, HID 1.11 spec, section 6.2.1
+        9,                                      // bLength
+        0x21,                                   // bDescriptorType
+        0x11, 0x01,                             // bcdHID
+        0,                                      // bCountryCode
+        1,                                      // bNumDescriptors
+        0x22,                                   // bDescriptorType
+        LSB(sizeof(gamepad_report_desc)),      // wDescriptorLength
+        MSB(sizeof(gamepad_report_desc)),
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        GAMEPAD_ENDPOINT | 0x80,                // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        GAMEPAD_SIZE, 0,                        // wMaxPacketSize
+        GAMEPAD_INTERVAL,                       // bInterval
+#endif // GAMEPAD_INTERFACE
+
 #ifdef MTP_INTERFACE
         // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
         9,                                      // bLength
@@ -1757,6 +1794,10 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
                 {0x2200, (MULTIJOY_INTERFACE + 3), multijoy_report_desc, sizeof(multijoy_report_desc)},
                 {0x2100, (MULTIJOY_INTERFACE + 3), config_descriptor+MULTIJOY_HID_DESC_OFFSET+(MULTIJOY_INTERFACE_DESC_SIZE*3), 9},
         #endif
+#endif
+#ifdef GAMEPAD_INTERFACE
+        {0x2200, GAMEPAD_INTERFACE, gamepad_report_desc, sizeof(gamepad_report_desc)},
+        {0x2100, GAMEPAD_INTERFACE, config_descriptor+GAMEPAD_HID_DESC_OFFSET, 9},
 #endif
 #ifdef RAWHID_INTERFACE
 	{0x2200, RAWHID_INTERFACE, rawhid_report_desc, sizeof(rawhid_report_desc)},

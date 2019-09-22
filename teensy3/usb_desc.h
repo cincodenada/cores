@@ -314,6 +314,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT16_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
 #elif defined(USB_GAMEPAD)
+  #define GAMEPAD_COUNT		1
   #define VENDOR_ID             0x16C0
   #define PRODUCT_ID            0x0484
   #define DEVICE_CLASS		0x01

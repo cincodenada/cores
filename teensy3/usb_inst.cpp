@@ -74,6 +74,12 @@ uint8_t usb_multijoy_class::manual_mode = 0;
 uint8_t usb_multijoy_class::joynum = 0;
 #endif
 
+#ifdef GAMEPAD_INTERFACE
+usb_gamepad_class Gamepad;
+uint8_t usb_gamepad_class::manual_mode = 0;
+uint8_t usb_gamepad_class::joynum = 0;
+#endif
+
 #ifdef USB_DISABLED
 usb_serial_class Serial;
 #endif

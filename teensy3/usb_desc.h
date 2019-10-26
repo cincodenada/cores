@@ -315,15 +315,16 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
 
 #elif defined(USB_GAMEPAD)
   #define GAMEPAD_COUNT		4
-  #define VENDOR_ID            0x20D6
-  #define PRODUCT_ID           0xA711
+  // These IDs are "borrowed" from some sanctioned 3rd-party Switch controller
+  #define VENDOR_ID		0x20D6
+  #define PRODUCT_ID		0xA711
   #define DEVICE_CLASS		0xEF
   #define DEVICE_SUBCLASS	0x02
   #define DEVICE_PROTOCOL	0x01
-  #define MANUFACTURER_NAME     {'B','e','n','s','u','s','s','e','n',' ','D','e','u','t','s','c','h',' ','&',' ','A','s','s','o','c','i','a','t','e','s',',','I','n','c','.','(','B','D','A',')'}
-  #define MANUFACTURER_NAME_LEN 40
-  #define PRODUCT_NAME          {'C','o','r','e',' ','(','P','l','u','s',')',' ','W','i','r','e','d',' ','C','o','n','t','r','o','l','l','e','r'}
-  #define PRODUCT_NAME_LEN      28
+  #define MANUFACTURER_NAME     {'T','e','e','n','s','y','d','u','i','n','o'}
+  #define MANUFACTURER_NAME_LEN 11
+  #define PRODUCT_NAME          {'G','a','m','e','p','a','d','s'}
+  #define PRODUCT_NAME_LEN	8
   #define EP0_SIZE		64
   #define NUM_ENDPOINTS		GAMEPAD_COUNT
   #define NUM_USB_BUFFERS	30

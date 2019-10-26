@@ -1389,6 +1389,62 @@ static uint8_t config_descriptor[CONFIG_DESC_SIZE] = {
         GAMEPAD_SIZE, 0,                        // wMaxPacketSize
         GAMEPAD_INTERVAL,                       // bInterval
     #endif
+    #if GAMEPAD_COUNT > 2
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        GAMEPAD_INTERFACE + 2,                     // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x03,                                   // bInterfaceClass (0x03 = HID)
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // HID interface descriptor, HID 1.11 spec, section 6.2.1
+        9,                                      // bLength
+        0x21,                                   // bDescriptorType
+        0x11, 0x01,                             // bcdHID
+        0,                                      // bCountryCode
+        1,                                      // bNumDescriptors
+        0x22,                                   // bDescriptorType
+        LSB(sizeof(gamepad_report_desc)),      // wDescriptorLength
+        MSB(sizeof(gamepad_report_desc)),
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        (GAMEPAD_ENDPOINT + 2) | 0x80,                // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        GAMEPAD_SIZE, 0,                        // wMaxPacketSize
+        GAMEPAD_INTERVAL,                       // bInterval
+    #endif
+    #if GAMEPAD_COUNT > 3
+        // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+        9,                                      // bLength
+        4,                                      // bDescriptorType
+        GAMEPAD_INTERFACE + 3,                     // bInterfaceNumber
+        0,                                      // bAlternateSetting
+        1,                                      // bNumEndpoints
+        0x03,                                   // bInterfaceClass (0x03 = HID)
+        0x00,                                   // bInterfaceSubClass
+        0x00,                                   // bInterfaceProtocol
+        0,                                      // iInterface
+        // HID interface descriptor, HID 1.11 spec, section 6.2.1
+        9,                                      // bLength
+        0x21,                                   // bDescriptorType
+        0x11, 0x01,                             // bcdHID
+        0,                                      // bCountryCode
+        1,                                      // bNumDescriptors
+        0x22,                                   // bDescriptorType
+        LSB(sizeof(gamepad_report_desc)),      // wDescriptorLength
+        MSB(sizeof(gamepad_report_desc)),
+        // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+        7,                                      // bLength
+        5,                                      // bDescriptorType
+        (GAMEPAD_ENDPOINT + 3) | 0x80,                // bEndpointAddress
+        0x03,                                   // bmAttributes (0x03=intr)
+        GAMEPAD_SIZE, 0,                        // wMaxPacketSize
+        GAMEPAD_INTERVAL,                       // bInterval
+    #endif
 #endif // GAMEPAD_INTERFACE
 
 #ifdef MTP_INTERFACE
@@ -1843,6 +1899,14 @@ const usb_descriptor_list_t usb_descriptor_list[] = {
     #if GAMEPAD_COUNT > 1
         {0x2200, GAMEPAD_INTERFACE + 1, gamepad_report_desc, sizeof(gamepad_report_desc)},
         {0x2100, GAMEPAD_INTERFACE + 1, config_descriptor+GAMEPAD_HID_DESC_OFFSET, 9},
+    #endif
+    #if GAMEPAD_COUNT > 2
+        {0x2200, GAMEPAD_INTERFACE + 2, gamepad_report_desc, sizeof(gamepad_report_desc)},
+        {0x2100, GAMEPAD_INTERFACE + 2, config_descriptor+GAMEPAD_HID_DESC_OFFSET, 9},
+    #endif
+    #if GAMEPAD_COUNT > 3
+        {0x2200, GAMEPAD_INTERFACE + 3, gamepad_report_desc, sizeof(gamepad_report_desc)},
+        {0x2100, GAMEPAD_INTERFACE + 3, config_descriptor+GAMEPAD_HID_DESC_OFFSET, 9},
     #endif
 #endif
 #ifdef RAWHID_INTERFACE

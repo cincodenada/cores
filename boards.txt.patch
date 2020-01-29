@@ -22,7 +22,7 @@
  teensy35.menu.usb.midi=MIDI
  teensy35.menu.usb.midi.build.usbtype=USB_MIDI
  teensy35.menu.usb.midi.fake_serial=teensy_gateway
-@@ -401,6 +405,10 @@
+@@ -401,6 +405,12 @@
  teensy31.menu.usb.hid.fake_serial=teensy_gateway
  teensy31.menu.usb.serialhid=Serial + Keyboard + Mouse + Joystick
  teensy31.menu.usb.serialhid.build.usbtype=USB_SERIAL_HID

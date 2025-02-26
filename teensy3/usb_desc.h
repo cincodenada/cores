@@ -313,6 +313,28 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT15_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT16_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
+#elif defined(USB_GAMEPAD)
+  #define GAMEPAD_COUNT		2
+  #define VENDOR_ID            0x20D6
+  #define PRODUCT_ID           0xA711
+  #define DEVICE_CLASS		0xEF
+  #define DEVICE_SUBCLASS	0x02
+  #define DEVICE_PROTOCOL	0x01
+  #define MANUFACTURER_NAME     {'B','e','n','s','u','s','s','e','n',' ','D','e','u','t','s','c','h',' ','&',' ','A','s','s','o','c','i','a','t','e','s',',','I','n','c','.','(','B','D','A',')'}
+  #define MANUFACTURER_NAME_LEN 40
+  #define PRODUCT_NAME          {'C','o','r','e',' ','(','P','l','u','s',')',' ','W','i','r','e','d',' ','C','o','n','t','r','o','l','l','e','r'}
+  #define PRODUCT_NAME_LEN      28
+  #define EP0_SIZE		64
+  #define NUM_ENDPOINTS		GAMEPAD_COUNT
+  #define NUM_USB_BUFFERS	30
+  #define NUM_INTERFACE		GAMEPAD_COUNT
+  #define GAMEPAD_INTERFACE     0
+  #define GAMEPAD_ENDPOINT      1
+  #define GAMEPAD_SIZE          16
+  #define GAMEPAD_INTERVAL      1
+  #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_ONLY
+
 #elif defined(USB_TOUCHSCREEN)
   #define VENDOR_ID		0x16C0
   #define PRODUCT_ID		0x04D3

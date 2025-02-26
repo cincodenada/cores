@@ -314,7 +314,7 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define ENDPOINT16_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
 #elif defined(USB_GAMEPAD)
-  #define GAMEPAD_COUNT		2
+  #define GAMEPAD_COUNT		4
   #define VENDOR_ID            0x20D6
   #define PRODUCT_ID           0xA711
   #define DEVICE_CLASS		0xEF
@@ -334,6 +334,8 @@ let me know?  http://forum.pjrc.com/forums/4-Suggestions-amp-Bug-Reports
   #define GAMEPAD_INTERVAL      1
   #define ENDPOINT1_CONFIG	ENDPOINT_TRANSMIT_ONLY
   #define ENDPOINT2_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT3_CONFIG	ENDPOINT_TRANSMIT_ONLY
+  #define ENDPOINT4_CONFIG	ENDPOINT_TRANSMIT_ONLY
 
 #elif defined(USB_TOUCHSCREEN)
   #define VENDOR_ID		0x16C0
